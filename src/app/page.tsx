@@ -1,69 +1,585 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+
+type JobUpdate = {
+  jobId: string;
+  email: string;
+  stage: string;
+};
+
+type ProgressResponse = {
+  run: {
+    id: string;
+    status: "running" | "completed" | "failed";
+    totalJobs: number;
+    totalBatches: number;
+    createdAt: string;
+  };
+  progress: {
+    percentage: number;
+    pending: number;
+    running: number;
+    success: number;
+    failed: number;
+    completed: number;
+    total: number;
+  };
+};
 
 export default function Home() {
+  const [targetUrl, setTargetUrl] = useState("");
+  const [accountsText, setAccountsText] = useState("");
+
+  const [updates, setUpdates] = useState<JobUpdate[]>([]);
+  const [status, setStatus] = useState("Ready");
+  const [isRunning, setIsRunning] = useState(false);
+  const [runId, setRunId] = useState<string | null>(null);
+
+  const [totalJobs, setTotalJobs] = useState(0);
+  const [pendingJobs, setPendingJobs] = useState(0);
+  const [runningJobs, setRunningJobs] = useState(0);
+  const [successfulJobs, setSuccessfulJobs] = useState(0);
+  const [failedJobs, setFailedJobs] = useState(0);
+  const [completedJobs, setCompletedJobs] = useState(0);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const savedRunId = sessionStorage.getItem("automationRunId");
+
+    if (!savedRunId) return;
+
+    setRunId(savedRunId);
+    setStatus("Restoring previous run...");
+
+    const restoreRun = async () => {
+      try {
+        const response = await fetch(`/api/runs/${savedRunId}/jobs`, {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            sessionStorage.removeItem("automationRunId");
+
+            setRunId(null);
+            setStatus("Ready");
+          }
+
+          return;
+        }
+
+        const data = await response.json();
+
+        const restoredUpdates: JobUpdate[] = data.jobs.map(
+          (job: { id: string; account: { email: string }; stage: string }) => ({
+            jobId: job.id,
+            email: job.account.email,
+            stage: job.stage,
+          }),
+        );
+
+        setUpdates(restoredUpdates);
+        setTotalJobs(data.totalJobs);
+
+        const successful = data.jobs.filter(
+          (job: { status: string }) => job.status === "success",
+        ).length;
+
+        const failed = data.jobs.filter(
+          (job: { status: string }) => job.status === "failed",
+        ).length;
+
+        const running = data.jobs.filter(
+          (job: { status: string }) => job.status === "running",
+        ).length;
+
+        const pending = data.jobs.filter(
+          (job: { status: string }) => job.status === "pending",
+        ).length;
+
+        const completed = successful + failed;
+
+        const restoredProgress =
+          data.totalJobs > 0
+            ? Math.round((completed / data.totalJobs) * 100)
+            : 0;
+
+        setSuccessfulJobs(successful);
+        setFailedJobs(failed);
+        setRunningJobs(running);
+        setPendingJobs(pending);
+        setCompletedJobs(completed);
+        setProgress(restoredProgress);
+
+        const finished =
+          data.jobs.length > 0 &&
+          data.jobs.every(
+            (job: { status: string }) =>
+              job.status === "success" || job.status === "failed",
+          );
+
+        if (finished) {
+          setIsRunning(false);
+          setStatus("Previous run completed");
+        } else {
+          setIsRunning(true);
+          setStatus("Previous run is active");
+        }
+      } catch (error) {
+        console.error("Failed to restore run:", error);
+
+        setStatus("Could not restore previous run");
+      }
+    };
+
+    void restoreRun();
+  }, []);
+
+  useEffect(() => {
+    if (!runId) return;
+
+    let active = true;
+
+    const pollProgress = async () => {
+      try {
+        const response = await fetch(`/api/runs/${runId}/progress`, {
+          cache: "no-store",
+        });
+
+        if (!response.ok || !active) return;
+
+        const data: ProgressResponse = await response.json();
+
+        if (!active) return;
+
+        setTotalJobs(data.progress.total);
+        setPendingJobs(data.progress.pending);
+        setRunningJobs(data.progress.running);
+        setSuccessfulJobs(data.progress.success);
+        setFailedJobs(data.progress.failed);
+        setCompletedJobs(data.progress.completed);
+        setProgress(data.progress.percentage);
+
+        if (data.run.status === "running") {
+          setIsRunning(true);
+          setStatus("Automation running...");
+        }
+
+        if (data.run.status === "completed") {
+          setIsRunning(false);
+          setStatus("Automation completed");
+        }
+
+        if (data.run.status === "failed") {
+          setIsRunning(false);
+          setStatus("Automation failed");
+        }
+      } catch (error) {
+        console.error("Progress polling failed:", error);
+      }
+    };
+
+    void pollProgress();
+
+    const interval = window.setInterval(pollProgress, 2000);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, [runId]);
+
+  const handleStart = async () => {
+    if (!targetUrl.trim()) {
+      setStatus("Enter a target URL first");
+      return;
+    }
+
+    if (!accountsText.trim()) {
+      setStatus("Enter at least one account");
+      return;
+    }
+
+    const accounts = accountsText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const [email, password] = line.split(",");
+
+        return {
+          email: email?.trim() ?? "",
+          password: password?.trim() ?? "",
+        };
+      });
+
+    sessionStorage.removeItem("automationRunId");
+
+    setRunId(null);
+    setUpdates([]);
+
+    setTotalJobs(accounts.length);
+    setPendingJobs(accounts.length);
+    setRunningJobs(0);
+    setSuccessfulJobs(0);
+    setFailedJobs(0);
+    setCompletedJobs(0);
+    setProgress(0);
+
+    setIsRunning(true);
+    setStatus("Starting automation...");
+
+    try {
+      const response = await fetch("/api/run-batch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          targetUrl,
+          accounts,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+
+        setStatus(data.error || "Failed to start automation");
+
+        setIsRunning(false);
+        return;
+      }
+
+      if (!response.body) {
+        setStatus("No streaming response received");
+
+        setIsRunning(false);
+        return;
+      }
+
+      const reader = response.body.getReader();
+
+      const decoder = new TextDecoder();
+
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+
+        if (done) break;
+
+        buffer += decoder.decode(value, {
+          stream: true,
+        });
+
+        const events = buffer.split("\n\n");
+
+        buffer = events.pop() ?? "";
+
+        for (const eventBlock of events) {
+          const lines = eventBlock.split("\n");
+
+          let eventName = "";
+          let eventData = "";
+
+          for (const line of lines) {
+            if (line.startsWith("event:")) {
+              eventName = line.replace("event:", "").trim();
+            }
+
+            if (line.startsWith("data:")) {
+              eventData = line.replace("data:", "").trim();
+            }
+          }
+
+          if (!eventData) continue;
+
+          try {
+            const data = JSON.parse(eventData);
+
+            if (eventName === "connected") {
+              setRunId(data.runId);
+
+              sessionStorage.setItem("automationRunId", data.runId);
+
+              setTotalJobs(data.totalJobs);
+
+              setStatus("Automation started");
+            }
+
+            if (eventName === "batch_started") {
+              setStatus(
+                `Processing batch ${data.batch} of ${data.totalBatches}`,
+              );
+            }
+
+            if (eventName === "job_stage") {
+              const update: JobUpdate = {
+                jobId: data.jobId,
+                email: data.email,
+                stage: data.stage,
+              };
+
+              setUpdates((previous) => {
+                const existingIndex = previous.findIndex(
+                  (item) => item.jobId === update.jobId,
+                );
+
+                if (existingIndex === -1) {
+                  return [...previous, update];
+                }
+
+                const next = [...previous];
+
+                next[existingIndex] = update;
+
+                return next;
+              });
+            }
+
+            if (eventName === "automation_completed") {
+              setIsRunning(false);
+              setStatus("Automation completed");
+            }
+
+            if (eventName === "automation_error") {
+              setIsRunning(false);
+              setStatus(data.message || "Automation failed");
+            }
+          } catch (error) {
+            console.error("Failed to parse SSE:", error);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Automation request failed:", error);
+
+      setIsRunning(false);
+      setStatus("Failed to connect to automation server");
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+    <main className="min-h-screen bg-slate-950 px-6 py-10 text-slate-100 md:px-10">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
+        <header className="mb-10 flex items-center justify-between">
+          <div>
+            <div className="mb-3 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500 text-lg font-bold shadow-lg shadow-indigo-500/20">
+                A
+              </div>
+
+              <span className="text-sm font-medium uppercase tracking-[0.25em] text-indigo-400">
+                Automation
+              </span>
+            </div>
+
+            <h1 className="text-4xl font-bold tracking-tight text-white">
+              Automation Dashboard
+            </h1>
+
+            <p className="mt-2 text-slate-400">
+              Manage and monitor your authorized automation runs.
+            </p>
+          </div>
+
+          <div className="hidden items-center gap-3 rounded-full border border-slate-800 bg-slate-900 px-4 py-2 md:flex">
+            <span
+              className={`h-2.5 w-2.5 rounded-full ${
+                isRunning ? "animate-pulse bg-emerald-400" : "bg-slate-500"
+              }`}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+            <span className="text-sm text-slate-300">
+              {isRunning ? "System Running" : "System Ready"}
+            </span>
+          </div>
+        </header>
+
+        {/* Input Card */}
+        <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl shadow-black/20 backdrop-blur md:p-8">
+          <div className="mb-7">
+            <h2 className="text-xl font-semibold text-white">
+              Create Automation Run
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-400">
+              Configure the target and authorized test accounts.
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {/* URL */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-300">
+                Target URL
+              </label>
+
+              <input
+                type="url"
+                value={targetUrl}
+                onChange={(event) => setTargetUrl(event.target.value)}
+                placeholder="https://example.com"
+                disabled={isRunning}
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3.5 text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+
+            {/* Accounts */}
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <label className="text-sm font-medium text-slate-300">
+                  Accounts
+                </label>
+
+                <span className="text-xs text-slate-500">
+                  one account per line
+                </span>
+              </div>
+
+              <textarea
+                value={accountsText}
+                onChange={(event) => setAccountsText(event.target.value)}
+                placeholder={
+                  "email1@example.com,password1\nemail2@example.com,password2"
+                }
+                disabled={isRunning}
+                className="h-48 w-full resize-y rounded-xl border border-slate-700 bg-slate-950 px-4 py-4 font-mono text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+
+            {/* Start */}
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm text-slate-500">
+                {totalJobs > 0
+                  ? `${totalJobs} account${totalJobs === 1 ? "" : "s"} loaded`
+                  : "No accounts loaded"}
+              </p>
+
+              <button
+                onClick={handleStart}
+                disabled={isRunning}
+                className="rounded-xl bg-indigo-500 px-7 py-3.5 font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:bg-indigo-400 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {isRunning ? "Automation Running..." : "Start Automation"}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Run Status */}
+        <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl shadow-black/20 md:p-8">
+          <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+            <div>
+              <p className="text-sm font-medium text-indigo-400">RUN STATUS</p>
+
+              <h2 className="mt-1 text-2xl font-bold text-white">{status}</h2>
+            </div>
+
+            {runId && (
+              <div className="rounded-lg border border-slate-800 bg-slate-950 px-4 py-2">
+                <span className="text-xs text-slate-500">RUN ID</span>
+
+                <p className="max-w-[300px] truncate font-mono text-xs text-slate-300">
+                  {runId}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Progress */}
+          <div className="mb-8">
+            <div className="mb-3 flex justify-between">
+              <span className="text-sm font-medium text-slate-300">
+                Overall Progress
+              </span>
+
+              <span className="text-sm font-bold text-white">{progress}%</span>
+            </div>
+
+            <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+              <div
+                className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+                style={{
+                  width: `${progress}%`,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Counters */}
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
+            {[
+              ["Total", totalJobs],
+              ["Pending", pendingJobs],
+              ["Running", runningJobs],
+              ["Success", successfulJobs],
+              ["Failed", failedJobs],
+              ["Completed", completedJobs],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-xl border border-slate-800 bg-slate-950 p-4"
+              >
+                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                  {label}
+                </p>
+
+                <p className="mt-2 text-2xl font-bold text-white">{value}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Job Updates */}
+        <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl shadow-black/20 md:p-8">
+          <div className="mb-6">
+            <p className="text-sm font-medium text-indigo-400">LIVE ACTIVITY</p>
+
+            <h2 className="mt-1 text-2xl font-bold text-white">Job Updates</h2>
+          </div>
+
+          {updates.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-800 bg-slate-950/50 p-10 text-center">
+              <p className="text-slate-500">No job activity yet.</p>
+
+              <p className="mt-1 text-xs text-slate-600">
+                Start an automation run to see live updates.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {updates.map((update) => (
+                <div
+                  key={update.jobId}
+                  className="flex flex-col gap-4 rounded-xl border border-slate-800 bg-slate-950 p-4 transition hover:border-slate-700 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-white">
+                      {update.email}
+                    </p>
+
+                    <p className="mt-1 truncate font-mono text-xs text-slate-600">
+                      {update.jobId}
+                    </p>
+                  </div>
+
+                  <span className="w-fit rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1.5 text-xs font-medium capitalize text-indigo-400">
+                    {update.stage}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Footer */}
+        <footer className="py-8 text-center text-xs text-slate-600">
+          Automation Dashboard
+        </footer>
+      </div>
+    </main>
   );
 }
