@@ -1,42 +1,70 @@
 import type { Page } from "playwright";
-import type { Account } from "@/types/automation";
 
-export type AuthenticationStatus =
-  | "authenticated"
-  | "authentication_required";
-
-export async function runAuthenticationStage(
+export async function runAuthentication(
   page: Page,
-  account: Account
-): Promise<AuthenticationStatus> {
-  console.log(
-    `Checking authentication for: ${account.email}`
-  );
+  email: string,
+  password: string,
+): Promise<void> {
+  const emailInput = page.getByTestId("email-input");
 
-  const currentUrl = page.url();
-
-  console.log(
-    `Current page for ${account.email}: ${currentUrl}`
-  );
-
-  /*
-   * For now, we use the current page as the test signal.
-   *
-   * Later, this function can be connected to the legitimate
-   * authentication flow for your authorized test environment.
-   */
-
-  if (currentUrl.includes("accounts.google.com")) {
-    console.log(
-      `Authentication required for: ${account.email}`
+  try {
+    await emailInput.waitFor({
+      state: "visible",
+      timeout: 10_000,
+    });
+  } catch {
+    throw new Error(
+      `Authentication form was not found at ${page.url()}. ` +
+        "Use the target site's login page or the included /test-site page.",
     );
-
-    return "authentication_required";
   }
 
-  console.log(
-    `Authentication appears complete for: ${account.email}`
+  if (!password.trim()) {
+    throw new Error(
+      `No password was provided for ${email}. ` +
+        "Use one account per line in the format email,password.",
+    );
+  }
+
+  await emailInput.fill(email);
+
+  const passwordInput = page.getByTestId(
+    "password-input",
   );
 
-  return "authenticated";
+  await passwordInput.waitFor({
+    state: "visible",
+    timeout: 10_000,
+  });
+
+  await passwordInput.fill(password);
+
+  const loginButton = page.getByTestId(
+    "login-button",
+  );
+
+  await loginButton.waitFor({
+    state: "visible",
+    timeout: 10_000,
+  });
+
+  await loginButton.click();
+
+  const authenticatedUser = page.getByTestId(
+    "authenticated-user",
+  );
+
+  await authenticatedUser.waitFor({
+    state: "visible",
+    timeout: 10_000,
+  });
+
+  const authenticatedEmail =
+    await authenticatedUser.textContent();
+
+  if (!authenticatedEmail?.includes(email)) {
+    throw new Error(
+      "Authenticated account does not match the expected account.",
+    );
+  }
 }

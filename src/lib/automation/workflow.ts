@@ -1,110 +1,89 @@
 import type { BrowserContext } from "playwright";
-import type {
-  Account,
-  JobStage,
-} from "@/types/automation";
-import {
-  runAuthenticationStage,
-} from "./authentication";
-import {
-  runPostAuthenticationStage,
-} from "./post-authentication";
+import type { AutomationAccount, JobStage } from "@/types/automation";
+import { runAuthentication } from "./authentication";
+import { runPostAuthentication } from "./post-authentication";
 
-export type WorkflowResult = {
+type WorkflowResult = {
   success: boolean;
-  stage: "completed" | "failed";
   message: string;
 };
 
-export type StageCallback = (
-  stage: JobStage
-) => void;
+type StageCallback = (stage: JobStage) => void;
 
 export async function runWorkflow(
-  account: Account,
+  account: AutomationAccount,
   context: BrowserContext,
   targetUrl: string,
-  onStage?: StageCallback
+  onStage?: StageCallback,
 ): Promise<WorkflowResult> {
-  console.log(
-    `Starting workflow for: ${account.email}`
-  );
+  let page;
 
   try {
-    const page = await context.newPage();
+    // --------------------------------
+    // 1. Open target
+    // --------------------------------
 
-    // Stage 1: Opening
     onStage?.("opening");
 
-    console.log(
-      `Stage opening: ${account.email}`
-    );
+    page = await context.newPage();
 
     await page.goto(targetUrl, {
       waitUntil: "domcontentloaded",
+      timeout: 30_000,
     });
 
-    console.log(
-      `Opened target website for: ${account.email}`
-    );
+    await page.waitForLoadState("networkidle", {
+      timeout: 30_000,
+    });
 
-    // Stage 2: Authentication
+    // --------------------------------
+    // 2. Authentication
+    // --------------------------------
+
     onStage?.("authenticating");
 
-    console.log(
-      `Stage authenticating: ${account.email}`
+    await runAuthentication(
+      page,
+      account.email,
+      account.password,
     );
 
-    const authenticationStatus =
-      await runAuthenticationStage(
-        page,
-        account
-      );
+    // --------------------------------
+    // 3. Post-authentication action
+    // --------------------------------
 
-    console.log(
-      `Authentication status for ${account.email}: ${authenticationStatus}`
-    );
-
-    // Stage 3: Post-authentication
     onStage?.("post-authentication");
 
-    console.log(
-      `Stage post-authentication: ${account.email}`
-    );
+    await runPostAuthentication(page);
 
-    await runPostAuthenticationStage(
-      page,
-      account
-    );
+    // --------------------------------
+    // 4. Completed
+    // --------------------------------
 
-    // Stage 4: Completed
     onStage?.("completed");
-
-    console.log(
-      `Workflow completed for: ${account.email}`
-    );
 
     return {
       success: true,
-      stage: "completed",
-      message:
-        "Workflow completed successfully",
+      message: "Browser workflow completed successfully.",
     };
   } catch (error) {
-    onStage?.("failed");
-
     console.error(
       `Workflow failed for ${account.email}:`,
-      error
+      error,
     );
+
+    onStage?.("failed");
 
     return {
       success: false,
-      stage: "failed",
       message:
         error instanceof Error
           ? error.message
-          : "Unknown workflow error",
+          : "Unknown workflow error.",
     };
+  } finally {
+    if (page) {
+      await page.close();
+    }
   }
 }

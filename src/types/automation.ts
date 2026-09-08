@@ -30,3 +30,8 @@ export type AutomationRequest = {
   targetUrl: string;
   accounts: Account[];
 };
+
+export type AutomationAccount = {
+  email: string;
+  password: string;
+};

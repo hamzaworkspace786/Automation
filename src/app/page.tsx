@@ -421,10 +421,15 @@ export default function Home() {
                 type="url"
                 value={targetUrl}
                 onChange={(event) => setTargetUrl(event.target.value)}
-                placeholder="https://example.com"
+                placeholder="http://localhost:3000/test-site"
                 disabled={isRunning}
                 className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3.5 text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-50"
               />
+
+              <p className="mt-2 text-xs text-slate-500">
+                For the included test workflow, use
+                http://localhost:3000/test-site.
+              </p>
             </div>
 
             {/* Accounts */}
@@ -482,7 +487,7 @@ export default function Home() {
               <div className="rounded-lg border border-slate-800 bg-slate-950 px-4 py-2">
                 <span className="text-xs text-slate-500">RUN ID</span>
 
-                <p className="max-w-[300px] truncate font-mono text-xs text-slate-300">
+                <p className="max-w-75 truncate font-mono text-xs text-slate-300">
                   {runId}
                 </p>
               </div>

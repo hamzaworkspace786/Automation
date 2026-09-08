@@ -1,25 +1,25 @@
 import type { Page } from "playwright";
-import type { Account } from "@/types/automation";
 
-export async function runPostAuthenticationStage(
+export async function runPostAuthentication(
   page: Page,
-  account: Account
 ): Promise<void> {
-  console.log(
-    `Post-authentication stage started for: ${account.email}`
+  const actionButton = page.getByTestId(
+    "post-auth-action",
   );
 
-  const heading = page.locator("h1");
+  await actionButton.waitFor({
+    state: "visible",
+    timeout: 10_000,
+  });
 
-  await heading.waitFor();
+  await actionButton.click();
 
-  const text = await heading.textContent();
-
-  console.log(
-    `Account ${account.email} found heading: ${text}`
+  const successIndicator = page.getByTestId(
+    "action-success",
   );
 
-  console.log(
-    `Post-authentication stage completed for: ${account.email}`
-  );
+  await successIndicator.waitFor({
+    state: "visible",
+    timeout: 10_000,
+  });
 }
