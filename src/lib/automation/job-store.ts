@@ -26,6 +26,8 @@ export function updateJobStage(
     return undefined;
   }
 
+  const nextTimestamp = new Date().toISOString();
+
   const updatedJob: AutomationJob = {
     ...job,
     stage,
@@ -34,7 +36,19 @@ export function updateJobStage(
         ? "success"
         : stage === "failed"
           ? "failed"
-          : "running",
+          : stage === "retrying"
+            ? "pending"
+            : "running",
+    updatedAt: nextTimestamp,
+    startedAt:
+      job.startedAt ??
+      (stage === "opening" || stage === "authenticating" || stage === "post-authentication" || stage === "retrying"
+        ? nextTimestamp
+        : job.startedAt),
+    completedAt:
+      stage === "completed" || stage === "failed"
+        ? nextTimestamp
+        : job.completedAt,
   };
 
   jobs.set(jobId, updatedJob);
@@ -45,9 +59,19 @@ export function updateJobStage(
 export function updateJobResult(
   job: AutomationJob
 ): AutomationJob {
-  jobs.set(job.id, job);
+  const nextJob: AutomationJob = {
+    ...job,
+    startedAt: job.startedAt ?? new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    completedAt:
+      job.status === "success" || job.status === "failed"
+        ? new Date().toISOString()
+        : job.completedAt,
+  };
 
-  return job;
+  jobs.set(job.id, nextJob);
+
+  return nextJob;
 }
 
 export function getJob(
@@ -58,4 +82,12 @@ export function getJob(
 
 export function getAllJobs(): AutomationJob[] {
   return Array.from(jobs.values());
+}
+
+export function getJobsForRun(
+  runId: string
+): AutomationJob[] {
+  return getAllJobs().filter(
+    (job) => job.runId === runId
+  );
 }

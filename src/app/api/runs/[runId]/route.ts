@@ -1,5 +1,5 @@
 import { getRun } from "@/lib/automation/run-store";
-import { getAllJobs } from "@/lib/automation/job-store";
+import { getJobsForRun } from "@/lib/automation/job-store";
 
 type RouteContext = {
   params: Promise<{
@@ -27,13 +27,12 @@ export async function GET(
       );
     }
 
-    const jobs = getAllJobs().filter(
-      (job) => job.runId === runId
-    );
+    const jobs = getJobsForRun(runId);
 
     return Response.json({
       run,
       jobs,
+      totalJobs: jobs.length,
     });
   } catch (error) {
     console.error(

@@ -1,4 +1,5 @@
 export const AUTOMATION_BATCH_SIZE = 5;
+export const AUTOMATION_MAX_RETRIES = 2;
 
 export function createBatches<T>(
   items: T[],

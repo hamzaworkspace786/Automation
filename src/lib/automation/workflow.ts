@@ -1,7 +1,8 @@
-import type { BrowserContext } from "playwright";
+import type { BrowserContext, Page } from "playwright";
 import type { AutomationAccount, JobStage } from "@/types/automation";
 import { runAuthentication } from "./authentication";
 import { runPostAuthentication } from "./post-authentication";
+import { sanitizeErrorMessage } from "./validation";
 
 type WorkflowResult = {
   success: boolean;
@@ -16,13 +17,9 @@ export async function runWorkflow(
   targetUrl: string,
   onStage?: StageCallback,
 ): Promise<WorkflowResult> {
-  let page;
+  let page: Page | undefined;
 
   try {
-    // --------------------------------
-    // 1. Open target
-    // --------------------------------
-
     onStage?.("opening");
 
     page = await context.newPage();
@@ -36,10 +33,6 @@ export async function runWorkflow(
       timeout: 30_000,
     });
 
-    // --------------------------------
-    // 2. Authentication
-    // --------------------------------
-
     onStage?.("authenticating");
 
     await runAuthentication(
@@ -48,17 +41,9 @@ export async function runWorkflow(
       account.password,
     );
 
-    // --------------------------------
-    // 3. Post-authentication action
-    // --------------------------------
-
     onStage?.("post-authentication");
 
     await runPostAuthentication(page);
-
-    // --------------------------------
-    // 4. Completed
-    // --------------------------------
 
     onStage?.("completed");
 
@@ -67,23 +52,26 @@ export async function runWorkflow(
       message: "Browser workflow completed successfully.",
     };
   } catch (error) {
+    const message = sanitizeErrorMessage(error);
+
     console.error(
       `Workflow failed for ${account.email}:`,
-      error,
+      message,
     );
 
     onStage?.("failed");
 
     return {
       success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : "Unknown workflow error.",
+      message,
     };
   } finally {
     if (page) {
-      await page.close();
+      try {
+        await page.close();
+      } catch {
+        // Ignore page cleanup failures so the original job failure stays intact.
+      }
     }
   }
 }

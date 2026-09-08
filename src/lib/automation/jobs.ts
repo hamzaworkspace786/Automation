@@ -2,6 +2,9 @@ import type {
   Account,
   AutomationJob,
 } from "@/types/automation";
+import {
+  AUTOMATION_MAX_RETRIES,
+} from "@/lib/batching";
 
 export type PublicAutomationJob = Omit<AutomationJob, "account"> & {
   account: Pick<Account, "email">;
@@ -10,10 +13,14 @@ export type PublicAutomationJob = Omit<AutomationJob, "account"> & {
 export function toPublicJob(
   job: AutomationJob
 ): PublicAutomationJob {
+  const accountWithoutPassword = {
+    email: job.account.email,
+  };
+
   return {
     ...job,
     account: {
-      email: job.account.email,
+      email: accountWithoutPassword.email,
     },
   };
 }
@@ -28,5 +35,10 @@ export function createJobs(
     account,
     status: "pending",
     stage: "pending",
+    retryCount: 0,
+    maxRetries: AUTOMATION_MAX_RETRIES,
+    startedAt: undefined,
+    completedAt: undefined,
+    updatedAt: new Date().toISOString(),
   }));
 }

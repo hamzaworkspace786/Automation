@@ -1,6 +1,7 @@
 import { getRun } from "@/lib/automation/run-store";
-import { getAllJobs } from "@/lib/automation/job-store";
+import { getJobsForRun } from "@/lib/automation/job-store";
 import { toPublicJob } from "@/lib/automation/jobs";
+import { getRunProgress } from "@/lib/automation/run-store";
 
 type RouteContext = {
   params: Promise<{
@@ -28,46 +29,28 @@ export async function GET(
       );
     }
 
-    const jobs = getAllJobs().filter(
-      (job) => job.runId === runId
-    );
-
-    const pending = jobs.filter(
-      (job) => job.status === "pending"
-    ).length;
-
-    const running = jobs.filter(
-      (job) => job.status === "running"
-    ).length;
-
-    const success = jobs.filter(
-      (job) => job.status === "success"
-    ).length;
-
-    const failed = jobs.filter(
-      (job) => job.status === "failed"
-    ).length;
-
-    const completed =
-      success + failed;
-
-    const progress =
-      jobs.length > 0
-        ? Math.round(
-            (completed / jobs.length) * 100
-          )
-        : 0;
+    const jobs = getJobsForRun(runId);
+    const progress = getRunProgress(runId, jobs);
 
     return Response.json({
       runId,
+      run,
       totalJobs: jobs.length,
-      progress,
+      progress: {
+        percentage: progress.percentage,
+        pending: progress.pending,
+        running: progress.running,
+        success: progress.success,
+        failed: progress.failed,
+        completed: progress.completed,
+        total: progress.total,
+      },
       counts: {
-        pending,
-        running,
-        success,
-        failed,
-        completed,
+        pending: progress.pending,
+        running: progress.running,
+        success: progress.success,
+        failed: progress.failed,
+        completed: progress.completed,
       },
       jobs: jobs.map(toPublicJob),
     });

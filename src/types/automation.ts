@@ -3,6 +3,11 @@ export type Account = {
   password: string;
 };
 
+export type RunStatus =
+  | "running"
+  | "completed"
+  | "failed";
+
 export type JobStatus =
   | "pending"
   | "running"
@@ -14,6 +19,7 @@ export type JobStage =
   | "opening"
   | "authenticating"
   | "post-authentication"
+  | "retrying"
   | "completed"
   | "failed";
 
@@ -24,6 +30,23 @@ export type AutomationJob = {
   status: JobStatus;
   stage: JobStage;
   error?: string;
+  retryCount: number;
+  maxRetries: number;
+  startedAt?: string;
+  completedAt?: string;
+  updatedAt?: string;
+};
+
+export type AutomationRun = {
+  id: string;
+  targetUrl: string;
+  totalJobs: number;
+  totalBatches: number;
+  status: RunStatus;
+  createdAt: string;
+  startedAt?: string;
+  updatedAt?: string;
+  completedAt?: string;
 };
 
 export type AutomationRequest = {

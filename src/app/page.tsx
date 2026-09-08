@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type JobUpdate = {
   jobId: string;
   email: string;
   stage: string;
+  status?: string;
+  retryCount?: number;
 };
 
 type ProgressResponse = {
@@ -27,6 +29,31 @@ type ProgressResponse = {
   };
 };
 
+type RunSummary = {
+  id: string;
+  targetUrl: string;
+  totalJobs: number;
+  status: "running" | "completed" | "failed";
+  createdAt: string;
+  startedAt?: string;
+  updatedAt?: string;
+  completedAt?: string;
+};
+
+type JobDetail = {
+  id: string;
+  runId: string;
+  account: { email: string };
+  status: string;
+  stage: string;
+  error?: string;
+  retryCount?: number;
+  maxRetries?: number;
+  startedAt?: string;
+  completedAt?: string;
+  updatedAt?: string;
+};
+
 export default function Home() {
   const [targetUrl, setTargetUrl] = useState("");
   const [accountsText, setAccountsText] = useState("");
@@ -35,6 +62,12 @@ export default function Home() {
   const [status, setStatus] = useState("Ready");
   const [isRunning, setIsRunning] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
+  const [history, setHistory] = useState<RunSummary[]>([]);
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+  const [selectedRunJobs, setSelectedRunJobs] = useState<JobDetail[]>([]);
+  const [jobFilter, setJobFilter] = useState<
+    "all" | "pending" | "running" | "success" | "failed" | "completed"
+  >("all");
 
   const [totalJobs, setTotalJobs] = useState(0);
   const [pendingJobs, setPendingJobs] = useState(0);
@@ -49,10 +82,9 @@ export default function Home() {
 
     if (!savedRunId) return;
 
-    setRunId(savedRunId);
-    setStatus("Restoring previous run...");
-
     const restoreRun = async () => {
+      setRunId(savedRunId);
+      setStatus("Restoring previous run...");
       try {
         const response = await fetch(`/api/runs/${savedRunId}/jobs`, {
           cache: "no-store",
@@ -135,6 +167,61 @@ export default function Home() {
 
     void restoreRun();
   }, []);
+
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const response = await fetch("/api/runs", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        setHistory(data.runs ?? []);
+      } catch (error) {
+        console.error("Run history load failed:", error);
+      }
+    };
+
+    void loadHistory();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedRunId) {
+      return;
+    }
+
+    const loadRunDetails = async () => {
+      try {
+        const response = await fetch(`/api/runs/${selectedRunId}/jobs`, {
+          cache: "no-store",
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        setSelectedRunJobs(data.jobs ?? []);
+      } catch (error) {
+        console.error("Run details load failed:", error);
+      }
+    };
+
+    void loadRunDetails();
+  }, [selectedRunId]);
+
+  const filteredJobs = useMemo(() => {
+    if (jobFilter === "all") return selectedRunJobs;
+
+    if (jobFilter === "completed") {
+      return selectedRunJobs.filter(
+        (job) => job.status === "success" || job.status === "failed",
+      );
+    }
+
+    return selectedRunJobs.filter((job) => job.status === jobFilter);
+  }, [jobFilter, selectedRunJobs]);
 
   useEffect(() => {
     if (!runId) return;
@@ -231,6 +318,25 @@ export default function Home() {
     setStatus("Starting automation...");
 
     try {
+      const parsedAccounts = accountsText
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const [email, ...rest] = line.split(",");
+
+          return {
+            email: email?.trim() ?? "",
+            password: rest.join(",").trim(),
+          };
+        });
+
+      if (parsedAccounts.length === 0) {
+        setStatus("Enter at least one valid account");
+        setIsRunning(false);
+        return;
+      }
+
       const response = await fetch("/api/run-batch", {
         method: "POST",
         headers: {
@@ -238,7 +344,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           targetUrl,
-          accounts,
+          accounts: parsedAccounts,
         }),
       });
 
@@ -302,7 +408,7 @@ export default function Home() {
               setRunId(data.runId);
 
               sessionStorage.setItem("automationRunId", data.runId);
-
+              setSelectedRunId(data.runId);
               setTotalJobs(data.totalJobs);
 
               setStatus("Automation started");
@@ -571,14 +677,180 @@ export default function Home() {
                     </p>
                   </div>
 
-                  <span className="w-fit rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1.5 text-xs font-medium capitalize text-indigo-400">
-                    {update.stage}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {typeof update.retryCount === "number" &&
+                      update.retryCount > 0 && (
+                        <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-amber-300">
+                          retry {update.retryCount}
+                        </span>
+                      )}
+                    <span className="w-fit rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1.5 text-xs font-medium capitalize text-indigo-400">
+                      {update.stage}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </section>
+
+        <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl shadow-black/20 md:p-8">
+          <div className="mb-6 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium text-indigo-400">RUN HISTORY</p>
+              <h2 className="mt-1 text-2xl font-bold text-white">
+                Recent runs
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              onClick={async () => {
+                const response = await fetch("/api/runs", {
+                  cache: "no-store",
+                });
+
+                if (response.ok) {
+                  const data = await response.json();
+                  setHistory(data.runs ?? []);
+                }
+              }}
+              className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-200"
+            >
+              Refresh
+            </button>
+          </div>
+
+          {history.length === 0 ? (
+            <p className="text-slate-400">No runs recorded yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {history.map((run) => (
+                <button
+                  key={run.id}
+                  type="button"
+                  onClick={() => setSelectedRunId(run.id)}
+                  className={`w-full rounded-xl border p-4 text-left transition ${
+                    selectedRunId === run.id
+                      ? "border-indigo-500 bg-indigo-500/10"
+                      : "border-slate-800 bg-slate-950 hover:border-slate-700"
+                  }`}
+                >
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="font-mono text-xs text-slate-400">
+                        {run.id}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-200">
+                        {run.targetUrl}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300">
+                      <span className="rounded-full border border-slate-700 bg-slate-900 px-2 py-1">
+                        {run.totalJobs} jobs
+                      </span>
+                      <span className="rounded-full border border-slate-700 bg-slate-900 px-2 py-1">
+                        {run.status}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {selectedRunId && (
+          <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl shadow-black/20 md:p-8">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-indigo-400">
+                  RUN DETAILS
+                </p>
+                <h2 className="mt-1 text-2xl font-bold text-white">
+                  {selectedRunId}
+                </h2>
+              </div>
+              <select
+                value={jobFilter}
+                onChange={(event) =>
+                  setJobFilter(event.target.value as typeof jobFilter)
+                }
+                className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+              >
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="running">Running</option>
+                <option value="success">Success</option>
+                <option value="failed">Failed</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+
+            <div className="space-y-3">
+              {filteredJobs.length === 0 ? (
+                <p className="text-slate-400">No jobs match this filter.</p>
+              ) : (
+                filteredJobs.map((job) => (
+                  <div
+                    key={job.id}
+                    className="rounded-xl border border-slate-800 bg-slate-950 p-4"
+                  >
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="font-medium text-white">
+                          {job.account.email}
+                        </p>
+                        <p className="mt-1 font-mono text-xs text-slate-500">
+                          {job.id}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2 py-1 text-xs text-indigo-300">
+                          {job.status}
+                        </span>
+                        <span className="rounded-full border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-300">
+                          {job.stage}
+                        </span>
+                        {typeof job.retryCount === "number" &&
+                          job.retryCount > 0 && (
+                            <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-1 text-[10px] uppercase tracking-wide text-amber-300">
+                              retry {job.retryCount}
+                            </span>
+                          )}
+                      </div>
+                    </div>
+                    {job.error && (
+                      <p className="mt-3 rounded-lg border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-300">
+                        {job.error}
+                      </p>
+                    )}
+                    <div className="mt-3 grid gap-2 text-xs text-slate-400 md:grid-cols-3">
+                      <span>
+                        Started:{" "}
+                        {job.startedAt
+                          ? new Date(job.startedAt).toLocaleString()
+                          : "—"}
+                      </span>
+                      <span>
+                        Updated:{" "}
+                        {job.updatedAt
+                          ? new Date(job.updatedAt).toLocaleString()
+                          : "—"}
+                      </span>
+                      <span>
+                        Completed:{" "}
+                        {job.completedAt
+                          ? new Date(job.completedAt).toLocaleString()
+                          : "—"}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+        )}
 
         {/* Footer */}
         <footer className="py-8 text-center text-xs text-slate-600">

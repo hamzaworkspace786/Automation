@@ -4,6 +4,7 @@ import type {
   JobStage,
 } from "@/types/automation";
 import { runWorkflow } from "./workflow";
+import { sanitizeErrorMessage } from "./validation";
 
 export type JobStageCallback = (
   job: AutomationJob,
@@ -20,29 +21,58 @@ export async function runAutomationJob(
     `Starting job: ${job.id}`
   );
 
-  onStage?.(job, "opening");
+  const startedAt = new Date().toISOString();
+
+  onStage?.({
+    ...job,
+    status: "running",
+    stage: "opening",
+    startedAt,
+    updatedAt: startedAt,
+  }, "opening");
 
   const result = await runWorkflow(
     job.account,
     context,
     targetUrl,
     (stage) => {
-      onStage?.(job, stage);
+      onStage?.({
+        ...job,
+        status:
+          stage === "completed"
+            ? "success"
+            : stage === "failed"
+              ? "failed"
+              : "running",
+        stage,
+        startedAt: job.startedAt ?? startedAt,
+        updatedAt: new Date().toISOString(),
+      }, stage);
     }
   );
 
   if (result.success) {
+    const completedAt = new Date().toISOString();
+
     return {
       ...job,
       status: "success",
       stage: "completed",
+      error: undefined,
+      startedAt: job.startedAt ?? startedAt,
+      completedAt,
+      updatedAt: completedAt,
     };
   }
+
+  const message = sanitizeErrorMessage(result.message);
 
   return {
     ...job,
     status: "failed",
     stage: "failed",
-    error: result.message,
+    error: message,
+    updatedAt: new Date().toISOString(),
+    completedAt: new Date().toISOString(),
   };
 }

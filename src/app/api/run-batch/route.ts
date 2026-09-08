@@ -14,8 +14,11 @@ import {
 } from "@/lib/automation/job-store";
 import {
   createRun,
+  getRunProgress,
+  syncRunStatus,
   updateRunStatus,
 } from "@/lib/automation/run-store";
+import { validateAccountList } from "@/lib/automation/validation";
 import type {
   AutomationRequest,
 } from "@/types/automation";
@@ -32,27 +35,49 @@ export async function POST(
       accounts,
     } = body;
 
-    if (
-      !targetUrl ||
-      !Array.isArray(accounts) ||
-      accounts.length === 0 ||
-      accounts.some(
-        (account) =>
-          !account ||
-          !account.email?.trim() ||
-          !account.password?.trim()
-      )
-    ) {
+    if (!targetUrl || !targetUrl.trim()) {
       return new Response(
         JSON.stringify({
-          error:
-            "Target URL and valid email/password accounts are required",
+          error: "Target URL is required.",
         }),
         {
           status: 400,
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    try {
+      new URL(targetUrl);
+    } catch {
+      return new Response(
+        JSON.stringify({
+          error: "Target URL must be a valid URL.",
+        }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    const validationErrors = validateAccountList(
+      Array.isArray(accounts) ? accounts : []
+    );
+
+    if (validationErrors.length > 0) {
+      return new Response(
+        JSON.stringify({
+          error: validationErrors[0],
+        }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
           },
         }
       );
@@ -60,247 +85,167 @@ export async function POST(
 
     const encoder = new TextEncoder();
 
-    const stream =
-      new ReadableStream({
-        start(controller) {
-          const sendEvent = (
-            event: string,
-            data: unknown
-          ) => {
-            const message =
-              `event: ${event}\n` +
-              `data: ${JSON.stringify(data)}\n\n`;
+    const stream = new ReadableStream({
+      start(controller) {
+        const sendEvent = (
+          event: string,
+          data: unknown
+        ) => {
+          const message =
+            `event: ${event}\n` +
+            `data: ${JSON.stringify(data)}\n\n`;
 
-            controller.enqueue(
-              encoder.encode(message)
+          controller.enqueue(
+            encoder.encode(message)
+          );
+        };
+
+        const runAutomation = async () => {
+          let runId: string | undefined;
+
+          try {
+            const totalBatches = Math.ceil(
+              accounts.length / AUTOMATION_BATCH_SIZE
             );
-          };
 
-          const runAutomation =
-            async () => {
-              let runId:
-                | string
-                | undefined;
+            const run = createRun(
+              targetUrl,
+              accounts.length,
+              totalBatches
+            );
 
-              try {
-                console.log(
-                  `Received ${accounts.length} accounts`
-                );
+            runId = run.id;
 
-                const totalBatches =
-                  Math.ceil(
-                    accounts.length /
-                      AUTOMATION_BATCH_SIZE
+            const jobs = createJobs(accounts, run.id);
+            const batches = createBatches(
+              jobs,
+              AUTOMATION_BATCH_SIZE
+            );
+
+            initializeJobs(jobs);
+
+            sendEvent("connected", {
+              message: "Automation started",
+              runId: run.id,
+              totalJobs: jobs.length,
+              totalBatches: batches.length,
+            });
+
+            const allResults = [];
+
+            for (const [index, batch] of batches.entries()) {
+              const batchNumber = index + 1;
+
+              sendEvent("batch_started", {
+                runId: run.id,
+                batch: batchNumber,
+                totalBatches: batches.length,
+                jobs: batch.length,
+              });
+
+              const results = await runBatch(
+                batch,
+                targetUrl,
+                (job, stage) => {
+                  const updatedJob = updateJobStage(
+                    job.id,
+                    stage
                   );
 
-                const run = createRun(
-                  targetUrl,
-                  accounts.length,
-                  totalBatches
-                );
-
-                runId = run.id;
-
-                const jobs =
-                  createJobs(
-                    accounts,
+                  const nextStatus = getRunProgress(
                     run.id
                   );
 
-                const batches =
-                  createBatches(
-                    jobs,
-                    AUTOMATION_BATCH_SIZE
-                  );
-
-                initializeJobs(jobs);
-
-                console.log(
-                  `Created automation run: ${run.id}`
-                );
-
-                console.log(
-                  `Created ${batches.length} batches`
-                );
-
-                sendEvent(
-                  "connected",
-                  {
-                    message:
-                      "Automation started",
+                  sendEvent("job_stage", {
                     runId: run.id,
-                    totalJobs:
-                      jobs.length,
-                    totalBatches:
-                      batches.length,
-                  }
-                );
-
-                const allResults = [];
-
-                for (
-                  const [
-                    index,
-                    batch,
-                  ] of batches.entries()
-                ) {
-                  const batchNumber =
-                    index + 1;
-
-                  console.log(
-                    `Processing batch ${batchNumber}`
-                  );
-
-                  sendEvent(
-                    "batch_started",
-                    {
-                      runId: run.id,
-                      batch:
-                        batchNumber,
-                      totalBatches:
-                        batches.length,
-                      jobs:
-                        batch.length,
-                    }
-                  );
-
-                  const results =
-                    await runBatch(
-                      batch,
-                      targetUrl,
-                      (
-                        job,
-                        stage
-                      ) => {
-                        const updatedJob =
-                          updateJobStage(
-                            job.id,
-                            stage
-                          );
-
-                        console.log(
-                          `LIVE UPDATE → ${job.id} → ${stage}`
-                        );
-
-                        sendEvent(
-                          "job_stage",
-                          {
-                            runId:
-                              run.id,
-                            jobId:
-                              job.id,
-                            email:
-                              job
-                                .account
-                                .email,
-                            stage,
-                            job: updatedJob
-                              ? toPublicJob(
-                                  updatedJob
-                                )
-                              : undefined,
-                          }
-                        );
-                      }
-                    );
-
-                  for (
-                    const result of results
-                  ) {
-                    updateJobResult(
-                      result
-                    );
-                  }
-
-                  allResults.push(
-                    ...results
-                  );
-
-                  sendEvent(
-                    "batch_completed",
-                    {
-                      runId: run.id,
-                      batch:
-                        batchNumber,
-                      totalBatches:
-                        batches.length,
-                      results: results.map(
-                        toPublicJob
-                      ),
-                    }
-                  );
+                    jobId: job.id,
+                    email: job.account.email,
+                    stage,
+                    status: updatedJob?.status ?? job.status,
+                    retryCount: updatedJob?.retryCount ?? job.retryCount,
+                    error: updatedJob?.error,
+                    progress: nextStatus,
+                    job: updatedJob
+                      ? toPublicJob(updatedJob)
+                      : undefined,
+                  });
                 }
+              );
 
-                updateRunStatus(
-                  run.id,
-                  "completed"
-                );
-
-                sendEvent(
-                  "automation_completed",
-                  {
-                    runId: run.id,
-                    totalJobs:
-                      allResults.length,
-                    results: allResults.map(
-                      toPublicJob
-                    ),
-                  }
-                );
-
-                console.log(
-                  `Automation run completed: ${run.id}`
-                );
-              } catch (error) {
-                console.error(
-                  "Automation failed:",
-                  error
-                );
-
-                if (runId) {
-                  updateRunStatus(
-                    runId,
-                    "failed"
-                  );
-                }
-
-                sendEvent(
-                  "automation_error",
-                  {
-                    runId,
-                    message:
-                      error instanceof
-                      Error
-                        ? error.message
-                        : "Unknown server error",
-                  }
-                );
-              } finally {
-                controller.close();
+              for (const result of results) {
+                updateJobResult(result);
               }
+
+              allResults.push(...results);
+
+              const batchProgress = getRunProgress(
+                run.id
+              );
+
+              updateRunStatus(
+                run.id,
+                batchProgress.status
+              );
+
+              sendEvent("batch_completed", {
+                runId: run.id,
+                batch: batchNumber,
+                totalBatches: batches.length,
+                status: batchProgress.status,
+                progress: batchProgress,
+                results: results.map(toPublicJob),
+              });
+            }
+
+            const finalStatus = syncRunStatus(run.id) ?? {
+              status: allResults.some(
+                (job) => job.status === "failed"
+              )
+                ? "failed"
+                : "completed",
             };
 
-          void runAutomation();
-        },
-      });
+            updateRunStatus(run.id, finalStatus.status);
 
-    return new Response(
-      stream,
-      {
-        headers: {
-          "Content-Type":
-            "text/event-stream",
-          "Cache-Control":
-            "no-cache, no-transform",
-          Connection: "keep-alive",
-        },
-      }
-    );
+            sendEvent("automation_completed", {
+              runId: run.id,
+              status: finalStatus.status,
+              totalJobs: allResults.length,
+              results: allResults.map(toPublicJob),
+              progress: getRunProgress(run.id),
+            });
+          } catch (error) {
+            console.error("Automation failed:", error);
+
+            if (runId) {
+              updateRunStatus(runId, "failed");
+            }
+
+            sendEvent("automation_error", {
+              runId,
+              message:
+                error instanceof Error
+                  ? error.message
+                  : "Unknown server error",
+            });
+          } finally {
+            controller.close();
+          }
+        };
+
+        void runAutomation();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache, no-transform",
+        Connection: "keep-alive",
+      },
+    });
   } catch (error) {
-    console.error(
-      "Request processing failed:",
-      error
-    );
+    console.error("Request processing failed:", error);
 
     return new Response(
       JSON.stringify({
@@ -312,8 +257,7 @@ export async function POST(
       {
         status: 500,
         headers: {
-          "Content-Type":
-            "application/json",
+          "Content-Type": "application/json",
         },
       }
     );

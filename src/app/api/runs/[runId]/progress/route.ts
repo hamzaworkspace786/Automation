@@ -1,5 +1,9 @@
-import { getRun } from "@/lib/automation/run-store";
-import { getAllJobs } from "@/lib/automation/job-store";
+import {
+  getRun,
+  getRunProgress,
+  syncRunStatus,
+} from "@/lib/automation/run-store";
+import { getJobsForRun } from "@/lib/automation/job-store";
 
 type RouteContext = {
   params: Promise<{
@@ -27,51 +31,26 @@ export async function GET(
       );
     }
 
-    const jobs = getAllJobs().filter(
-      (job) => job.runId === runId
-    );
-
-    const pending = jobs.filter(
-      (job) => job.status === "pending"
-    ).length;
-
-    const running = jobs.filter(
-      (job) => job.status === "running"
-    ).length;
-
-    const success = jobs.filter(
-      (job) => job.status === "success"
-    ).length;
-
-    const failed = jobs.filter(
-      (job) => job.status === "failed"
-    ).length;
-
-    const completed = success + failed;
-
-    const progress =
-      jobs.length > 0
-        ? Math.round(
-            (completed / jobs.length) * 100
-          )
-        : 0;
+    const jobs = getJobsForRun(runId);
+    const progress = getRunProgress(runId, jobs);
+    const updatedRun = syncRunStatus(runId) ?? run;
 
     return Response.json({
       run: {
-        id: run.id,
-        status: run.status,
-        totalJobs: run.totalJobs,
-        totalBatches: run.totalBatches,
-        createdAt: run.createdAt,
+        id: updatedRun.id,
+        status: updatedRun.status,
+        totalJobs: updatedRun.totalJobs,
+        totalBatches: updatedRun.totalBatches,
+        createdAt: updatedRun.createdAt,
       },
       progress: {
-        percentage: progress,
-        pending,
-        running,
-        success,
-        failed,
-        completed,
-        total: jobs.length,
+        percentage: progress.percentage,
+        pending: progress.pending,
+        running: progress.running,
+        success: progress.success,
+        failed: progress.failed,
+        completed: progress.completed,
+        total: progress.total,
       },
     });
   } catch (error) {
