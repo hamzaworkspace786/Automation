@@ -1,3 +1,5 @@
+export const AUTOMATION_BATCH_SIZE = 5;
+
 export function createBatches<T>(
   items: T[],
   batchSize: number

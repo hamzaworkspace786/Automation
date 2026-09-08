@@ -1,5 +1,11 @@
-import { createBatches } from "@/lib/batching";
-import { createJobs } from "@/lib/automation/jobs";
+import {
+  AUTOMATION_BATCH_SIZE,
+  createBatches,
+} from "@/lib/batching";
+import {
+  createJobs,
+  toPublicJob,
+} from "@/lib/automation/jobs";
 import { runBatch } from "@/lib/automation/batch-runner";
 import {
   initializeJobs,
@@ -29,12 +35,18 @@ export async function POST(
     if (
       !targetUrl ||
       !Array.isArray(accounts) ||
-      accounts.length === 0
+      accounts.length === 0 ||
+      accounts.some(
+        (account) =>
+          !account ||
+          !account.email?.trim() ||
+          !account.password?.trim()
+      )
     ) {
       return new Response(
         JSON.stringify({
           error:
-            "Target URL and accounts are required",
+            "Target URL and valid email/password accounts are required",
         }),
         {
           status: 400,
@@ -77,7 +89,8 @@ export async function POST(
 
                 const totalBatches =
                   Math.ceil(
-                    accounts.length / 5
+                    accounts.length /
+                      AUTOMATION_BATCH_SIZE
                   );
 
                 const run = createRun(
@@ -97,7 +110,7 @@ export async function POST(
                 const batches =
                   createBatches(
                     jobs,
-                    5
+                    AUTOMATION_BATCH_SIZE
                   );
 
                 initializeJobs(jobs);
@@ -181,8 +194,11 @@ export async function POST(
                                 .account
                                 .email,
                             stage,
-                            job:
-                              updatedJob,
+                            job: updatedJob
+                              ? toPublicJob(
+                                  updatedJob
+                                )
+                              : undefined,
                           }
                         );
                       }
@@ -208,7 +224,9 @@ export async function POST(
                         batchNumber,
                       totalBatches:
                         batches.length,
-                      results,
+                      results: results.map(
+                        toPublicJob
+                      ),
                     }
                   );
                 }
@@ -224,8 +242,9 @@ export async function POST(
                     runId: run.id,
                     totalJobs:
                       allResults.length,
-                    results:
-                      allResults,
+                    results: allResults.map(
+                      toPublicJob
+                    ),
                   }
                 );
 

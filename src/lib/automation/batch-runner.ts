@@ -21,16 +21,36 @@ export async function runBatch(
     `Starting batch with ${jobs.length} jobs`
   );
 
-  const browser: Browser =
-    await createBrowser();
+  let browser: Browser;
+
+  try {
+    browser = await createBrowser();
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unable to start the browser.";
+
+    return jobs.map((job) => {
+      onStage?.(job, "failed");
+
+      return {
+        ...job,
+        status: "failed",
+        stage: "failed",
+        error: message,
+      };
+    });
+  }
 
   try {
     const results = await Promise.all(
       jobs.map(async (job) => {
-        const context =
-          await createBrowserContext(browser);
+        let context;
 
         try {
+          context = await createBrowserContext(browser);
+
           const result =
             await runAutomationJob(
               job,
@@ -53,8 +73,22 @@ export async function runBatch(
           );
 
           return result;
+        } catch (error) {
+          const message =
+            error instanceof Error
+              ? error.message
+              : "Unknown browser job error.";
+
+          onStage?.(job, "failed");
+
+          return {
+            ...job,
+            status: "failed" as const,
+            stage: "failed" as const,
+            error: message,
+          };
         } finally {
-          await context.close();
+          await context?.close();
         }
       })
     );
