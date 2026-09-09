@@ -33,6 +33,7 @@ export type AutomationJob = {
   status: JobStatus;
   stage: JobStage;
   error?: string;
+  retryable?: boolean;
   retryCount: number;
   maxRetries: number;
   startedAt?: string;

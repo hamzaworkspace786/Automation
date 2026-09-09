@@ -96,6 +96,11 @@ export async function runBatch(
             break;
           }
 
+          if (result.retryable === false) {
+            results.push(result);
+            break;
+          }
+
           if (currentJob.retryCount >= currentJob.maxRetries) {
             results.push({
               ...result,

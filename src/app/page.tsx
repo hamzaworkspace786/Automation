@@ -61,7 +61,7 @@ export default function Home() {
   );
   const [executionMode, setExecutionMode] = useState<
     "visit-only" | "authenticate"
-  >("visit-only");
+  >("authenticate");
   const [accountsText, setAccountsText] = useState("");
 
   const [updates, setUpdates] = useState<JobUpdate[]>([]);

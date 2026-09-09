@@ -11,6 +11,7 @@ type WorkflowResult = {
   success: boolean;
   message: string;
   failureStage?: JobStage;
+  retryable?: boolean;
 };
 
 type StageCallback = (stage: JobStage) => void;
@@ -47,16 +48,13 @@ export async function runWorkflow(
       };
     }
 
-    await page.waitForLoadState("networkidle", {
-      timeout: 30_000,
-    });
-
     onStage?.("authenticating");
 
     const authentication = await runAuthentication(
       page,
       account.email,
       account.password ?? "",
+      () => onStage?.("manual-verification-required"),
     );
 
     if (authentication.status !== "success") {
@@ -66,6 +64,7 @@ export async function runWorkflow(
         success: false,
         message: authentication.message,
         failureStage: authentication.status,
+        retryable: false,
       };
     }
 

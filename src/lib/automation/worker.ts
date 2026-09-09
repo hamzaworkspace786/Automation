@@ -76,6 +76,7 @@ export async function runAutomationJob(
     status: "failed",
     stage: failureStage,
     error: message,
+    retryable: result.retryable,
     updatedAt: new Date().toISOString(),
     completedAt: new Date().toISOString(),
   };
