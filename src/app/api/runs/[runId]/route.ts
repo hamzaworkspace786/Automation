@@ -1,5 +1,6 @@
 import { getRun } from "@/lib/automation/run-store";
 import { getJobsForRun } from "@/lib/automation/job-store";
+import { toPublicJob } from "@/lib/automation/jobs";
 
 type RouteContext = {
   params: Promise<{
@@ -31,7 +32,7 @@ export async function GET(
 
     return Response.json({
       run,
-      jobs,
+      jobs: jobs.map(toPublicJob),
       totalJobs: jobs.length,
     });
   } catch (error) {

@@ -277,6 +277,43 @@ export default function Home() {
     };
   }, [runId]);
 
+  const handleRetryJob = async (jobId: string) => {
+    if (!selectedRunId) return;
+
+    try {
+      const response = await fetch(
+        `/api/runs/${selectedRunId}/jobs/${jobId}/retry`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setStatus(data.error || "Retry failed");
+        return;
+      }
+
+      setStatus(`Retry completed for ${jobId}`);
+
+      const refreshed = await fetch(`/api/runs/${selectedRunId}/jobs`, {
+        cache: "no-store",
+      });
+
+      if (refreshed.ok) {
+        const payload = await refreshed.json();
+        setSelectedRunJobs(payload.jobs ?? []);
+      }
+    } catch (error) {
+      console.error("Retry request failed:", error);
+      setStatus("Retry request failed");
+    }
+  };
+
   const handleStart = async () => {
     if (!targetUrl.trim()) {
       setStatus("Enter a target URL first");
@@ -369,95 +406,139 @@ export default function Home() {
       const decoder = new TextDecoder();
 
       let buffer = "";
+      let retryCount = 0;
+      const maxReconnectAttempts = 5;
 
-      while (true) {
-        const { value, done } = await reader.read();
+      const streamEvents = async () => {
+        while (true) {
+          const { value, done } = await reader.read();
 
-        if (done) break;
+          if (done) break;
 
-        buffer += decoder.decode(value, {
-          stream: true,
-        });
+          buffer += decoder.decode(value, {
+            stream: true,
+          });
 
-        const events = buffer.split("\n\n");
+          const events = buffer.split("\n\n");
 
-        buffer = events.pop() ?? "";
+          buffer = events.pop() ?? "";
 
-        for (const eventBlock of events) {
-          const lines = eventBlock.split("\n");
+          for (const eventBlock of events) {
+            const lines = eventBlock.split("\n");
 
-          let eventName = "";
-          let eventData = "";
+            let eventName = "";
+            let eventData = "";
 
-          for (const line of lines) {
-            if (line.startsWith("event:")) {
-              eventName = line.replace("event:", "").trim();
+            for (const line of lines) {
+              if (line.startsWith("event:")) {
+                eventName = line.replace("event:", "").trim();
+              }
+
+              if (line.startsWith("data:")) {
+                eventData = line.replace("data:", "").trim();
+              }
             }
 
-            if (line.startsWith("data:")) {
-              eventData = line.replace("data:", "").trim();
-            }
-          }
+            if (!eventData) continue;
 
-          if (!eventData) continue;
+            try {
+              const data = JSON.parse(eventData);
 
-          try {
-            const data = JSON.parse(eventData);
+              if (eventName === "connected") {
+                setRunId(data.runId);
 
-            if (eventName === "connected") {
-              setRunId(data.runId);
+                sessionStorage.setItem("automationRunId", data.runId);
+                setSelectedRunId(data.runId);
+                setTotalJobs(data.totalJobs);
 
-              sessionStorage.setItem("automationRunId", data.runId);
-              setSelectedRunId(data.runId);
-              setTotalJobs(data.totalJobs);
+                setStatus("Automation started");
+              }
 
-              setStatus("Automation started");
-            }
-
-            if (eventName === "batch_started") {
-              setStatus(
-                `Processing batch ${data.batch} of ${data.totalBatches}`,
-              );
-            }
-
-            if (eventName === "job_stage") {
-              const update: JobUpdate = {
-                jobId: data.jobId,
-                email: data.email,
-                stage: data.stage,
-              };
-
-              setUpdates((previous) => {
-                const existingIndex = previous.findIndex(
-                  (item) => item.jobId === update.jobId,
+              if (eventName === "batch_started") {
+                setStatus(
+                  `Processing batch ${data.batch} of ${data.totalBatches}`,
                 );
+              }
 
-                if (existingIndex === -1) {
-                  return [...previous, update];
-                }
+              if (eventName === "job_stage") {
+                const update: JobUpdate = {
+                  jobId: data.jobId,
+                  email: data.email,
+                  stage: data.stage,
+                  status: data.status,
+                  retryCount: data.retryCount,
+                };
 
-                const next = [...previous];
+                setUpdates((previous) => {
+                  const existingIndex = previous.findIndex(
+                    (item) => item.jobId === update.jobId,
+                  );
 
-                next[existingIndex] = update;
+                  if (existingIndex === -1) {
+                    return [...previous, update];
+                  }
 
-                return next;
-              });
+                  const next = [...previous];
+
+                  next[existingIndex] = {
+                    ...next[existingIndex],
+                    ...update,
+                  };
+
+                  return next;
+                });
+              }
+
+              if (eventName === "automation_completed") {
+                setIsRunning(false);
+                setStatus("Automation completed");
+                retryCount = 0;
+              }
+
+              if (eventName === "automation_error") {
+                setIsRunning(false);
+                setStatus(data.message || "Automation failed");
+                retryCount = 0;
+              }
+            } catch (error) {
+              console.error("Failed to parse SSE:", error);
             }
-
-            if (eventName === "automation_completed") {
-              setIsRunning(false);
-              setStatus("Automation completed");
-            }
-
-            if (eventName === "automation_error") {
-              setIsRunning(false);
-              setStatus(data.message || "Automation failed");
-            }
-          } catch (error) {
-            console.error("Failed to parse SSE:", error);
           }
         }
+      };
+
+      try {
+        await streamEvents();
+      } catch (error) {
+        console.error("Automation stream failed:", error);
       }
+
+      if (retryCount < maxReconnectAttempts && runId) {
+        retryCount += 1;
+        setStatus("Connection lost, reconnecting...");
+
+        const recovery = await fetch(`/api/runs/${runId}/progress`, {
+          cache: "no-store",
+        });
+
+        if (recovery.ok) {
+          const next = await recovery.json();
+          setTotalJobs(next.progress.total);
+          setPendingJobs(next.progress.pending);
+          setRunningJobs(next.progress.running);
+          setSuccessfulJobs(next.progress.success);
+          setFailedJobs(next.progress.failed);
+          setCompletedJobs(next.progress.completed);
+          setProgress(next.progress.percentage);
+        }
+
+        await new Promise((resolve) => window.setTimeout(resolve, 1000));
+
+        return;
+      }
+
+      setIsRunning(false);
+      setStatus("Connection closed");
     } catch (error) {
       console.error("Automation request failed:", error);
 
@@ -824,6 +905,17 @@ export default function Home() {
                       <p className="mt-3 rounded-lg border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-300">
                         {job.error}
                       </p>
+                    )}
+                    {job.status === "failed" && (
+                      <div className="mt-3 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => void handleRetryJob(job.id)}
+                          className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400"
+                        >
+                          Retry
+                        </button>
+                      </div>
                     )}
                     <div className="mt-3 grid gap-2 text-xs text-slate-400 md:grid-cols-3">
                       <span>

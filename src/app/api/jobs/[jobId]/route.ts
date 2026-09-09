@@ -1,4 +1,5 @@
 import { getJob } from "@/lib/automation/job-store";
+import { toPublicJob } from "@/lib/automation/jobs";
 
 type RouteContext = {
   params: Promise<{
@@ -27,7 +28,7 @@ export async function GET(
     }
 
     return Response.json({
-      job,
+      job: toPublicJob(job),
     });
   } catch (error) {
     console.error(
