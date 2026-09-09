@@ -33,7 +33,22 @@ export async function POST(
     const {
       targetUrl,
       accounts,
+      mode = "authenticate",
     } = body;
+
+    if (mode !== "visit-only" && mode !== "authenticate") {
+      return new Response(
+        JSON.stringify({
+          error: "Automation mode must be visit-only or authenticate.",
+        }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+    }
 
     if (!targetUrl || !targetUrl.trim()) {
       return new Response(
@@ -49,8 +64,10 @@ export async function POST(
       );
     }
 
+    let parsedTargetUrl: URL;
+
     try {
-      new URL(targetUrl);
+      parsedTargetUrl = new URL(targetUrl.trim());
     } catch {
       return new Response(
         JSON.stringify({
@@ -65,8 +82,26 @@ export async function POST(
       );
     }
 
+    if (
+      parsedTargetUrl.protocol !== "http:" &&
+      parsedTargetUrl.protocol !== "https:"
+    ) {
+      return new Response(
+        JSON.stringify({
+          error: "Target URL must use HTTP or HTTPS.",
+        }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
     const validationErrors = validateAccountList(
-      Array.isArray(accounts) ? accounts : []
+      Array.isArray(accounts) ? accounts : [],
+      mode,
     );
 
     if (validationErrors.length > 0) {
@@ -109,9 +144,10 @@ export async function POST(
             );
 
             const run = createRun(
-              targetUrl,
+              parsedTargetUrl.toString(),
               accounts.length,
-              totalBatches
+              totalBatches,
+              mode,
             );
 
             runId = run.id;
@@ -145,7 +181,8 @@ export async function POST(
 
               const results = await runBatch(
                 batch,
-                targetUrl,
+                parsedTargetUrl.toString(),
+                mode,
                 (job, stage) => {
                   const updatedJob = updateJobStage(
                     job.id,

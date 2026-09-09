@@ -1,70 +1,122 @@
 import type { Page } from "playwright";
 
+export type AuthenticationResult =
+  | {
+      status: "success";
+    }
+  | {
+      status: "failed" | "manual-verification-required";
+      message: string;
+    };
+
+async function firstVisible(
+  page: Page,
+  selector: string,
+): Promise<ReturnType<Page["locator"]> | undefined> {
+  const candidates = page.locator(selector);
+
+  for (let index = 0; index < await candidates.count(); index += 1) {
+    const candidate = candidates.nth(index);
+
+    if (await candidate.isVisible().catch(() => false)) {
+      return candidate;
+    }
+  }
+
+  return undefined;
+}
+
 export async function runAuthentication(
   page: Page,
   email: string,
   password: string,
-): Promise<void> {
-  const emailInput = page.getByTestId("email-input");
+): Promise<AuthenticationResult> {
+  const emailInput = await firstVisible(
+    page,
+    'input[type="email"], input[autocomplete="username"], input[name*="email" i], input[name*="user" i]',
+  );
 
-  try {
-    await emailInput.waitFor({
-      state: "visible",
-      timeout: 10_000,
-    });
-  } catch {
-    throw new Error(
-      `Authentication form was not found at ${page.url()}. ` +
-        "Use the target site's login page or the included /test-site page.",
-    );
+  if (!emailInput) {
+    return {
+      status: "failed",
+      message: "Authentication email field was not found.",
+    };
   }
 
   if (!password.trim()) {
-    throw new Error(
-      `No password was provided for ${email}. ` +
-        "Use one account per line in the format email,password.",
-    );
+    return {
+      status: "failed",
+      message: "Authentication password was not provided.",
+    };
   }
 
   await emailInput.fill(email);
 
-  const passwordInput = page.getByTestId(
-    "password-input",
+  const passwordInput = await firstVisible(
+    page,
+    'input[type="password"]',
   );
 
-  await passwordInput.waitFor({
-    state: "visible",
-    timeout: 10_000,
-  });
+  if (!passwordInput) {
+    return {
+      status: "failed",
+      message: "Authentication password field was not found.",
+    };
+  }
 
   await passwordInput.fill(password);
 
-  const loginButton = page.getByTestId(
-    "login-button",
+  const loginButton = await firstVisible(
+    page,
+    'button[type="submit"], input[type="submit"], button',
   );
 
-  await loginButton.waitFor({
-    state: "visible",
-    timeout: 10_000,
-  });
+  if (!loginButton) {
+    return {
+      status: "failed",
+      message: "Authentication submit control was not found.",
+    };
+  }
 
   await loginButton.click();
 
-  const authenticatedUser = page.getByTestId(
-    "authenticated-user",
+  await page.waitForLoadState("domcontentloaded", {
+    timeout: 15_000,
+  }).catch(() => undefined);
+
+  const bodyText = await page.locator("body").innerText().catch(() => "");
+  const normalizedText = bodyText.toLowerCase();
+
+  if (
+    /captcha|recaptcha|two-factor|multi-factor|verification code|verify you are human|security check|passkey/.test(
+      normalizedText,
+    )
+  ) {
+    return {
+      status: "manual-verification-required",
+      message: "Manual verification is required to complete authentication.",
+    };
+  }
+
+  const errorText = normalizedText.match(
+    /incorrect password|invalid password|invalid credentials|unable to sign in|sign in failed|login failed/,
   );
 
-  await authenticatedUser.waitFor({
-    state: "visible",
-    timeout: 10_000,
-  });
-
-  const authenticatedEmail =
-    await authenticatedUser.textContent();
-
-  if (!authenticatedEmail?.includes(email)) {
-    throw new Error(
-      "Authenticated account does not match the expected account.",
-    );
+  if (errorText) {
+    return {
+      status: "failed",
+      message: "Authentication failed.",
+    };
   }
+
+  if (await passwordInput.isVisible().catch(() => false)) {
+    return {
+      status: "failed",
+      message: "Authentication result could not be confirmed.",
+    };
+  }
+
+  return {
+    status: "success",
+  };
 }

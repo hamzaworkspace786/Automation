@@ -32,6 +32,7 @@ type ProgressResponse = {
 type RunSummary = {
   id: string;
   targetUrl: string;
+  mode: "visit-only" | "authenticate";
   totalJobs: number;
   status: "running" | "completed" | "failed";
   createdAt: string;
@@ -55,7 +56,12 @@ type JobDetail = {
 };
 
 export default function Home() {
-  const [targetUrl, setTargetUrl] = useState("");
+  const [targetUrl, setTargetUrl] = useState(
+    "https://share.google/nGDUcwrYZ6wG3lRvP",
+  );
+  const [executionMode, setExecutionMode] = useState<
+    "visit-only" | "authenticate"
+  >("visit-only");
   const [accountsText, setAccountsText] = useState("");
 
   const [updates, setUpdates] = useState<JobUpdate[]>([]);
@@ -330,11 +336,11 @@ export default function Home() {
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => {
-        const [email, password] = line.split(",");
+        const [email, ...rest] = line.split(",");
 
         return {
           email: email?.trim() ?? "",
-          password: password?.trim() ?? "",
+          password: rest.join(",").trim(),
         };
       });
 
@@ -364,7 +370,9 @@ export default function Home() {
 
           return {
             email: email?.trim() ?? "",
-            password: rest.join(",").trim(),
+            ...(executionMode === "authenticate"
+              ? { password: rest.join(",").trim() }
+              : {}),
           };
         });
 
@@ -382,6 +390,7 @@ export default function Home() {
         body: JSON.stringify({
           targetUrl,
           accounts: parsedAccounts,
+          mode: executionMode,
         }),
       });
 
@@ -614,9 +623,32 @@ export default function Home() {
               />
 
               <p className="mt-2 text-xs text-slate-500">
-                For the included test workflow, use
-                http://localhost:3000/test-site.
+                The browser will open this URL in a visible Chrome window.
               </p>
+            </div>
+
+            <div>
+              <label
+                htmlFor="execution-mode"
+                className="mb-2 block text-sm font-medium text-slate-300"
+              >
+                Run mode
+              </label>
+
+              <select
+                id="execution-mode"
+                value={executionMode}
+                onChange={(event) =>
+                  setExecutionMode(
+                    event.target.value as "visit-only" | "authenticate",
+                  )
+                }
+                disabled={isRunning}
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3.5 text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="visit-only">Visit URL only</option>
+                <option value="authenticate">Authenticate after opening</option>
+              </select>
             </div>
 
             {/* Accounts */}
@@ -635,11 +667,19 @@ export default function Home() {
                 value={accountsText}
                 onChange={(event) => setAccountsText(event.target.value)}
                 placeholder={
-                  "email1@example.com,password1\nemail2@example.com,password2"
+                  executionMode === "visit-only"
+                    ? "hamzasworkspace1@gmail.com"
+                    : "email1@example.com,password1\nemail2@example.com,password2"
                 }
                 disabled={isRunning}
                 className="h-48 w-full resize-y rounded-xl border border-slate-700 bg-slate-950 px-4 py-4 font-mono text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-50"
               />
+
+              <p className="mt-2 text-xs text-slate-500">
+                {executionMode === "visit-only"
+                  ? "Enter one email per line. No password is required for visit-only mode."
+                  : "Enter one email,password pair per line."}
+              </p>
             </div>
 
             {/* Start */}

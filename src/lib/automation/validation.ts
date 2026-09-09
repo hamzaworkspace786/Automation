@@ -1,4 +1,4 @@
-import type { Account } from "@/types/automation";
+import type { Account, AutomationMode } from "@/types/automation";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
 
@@ -76,7 +76,10 @@ export function parseAccountsInput(raw: string): {
   };
 }
 
-export function validateAccountList(accounts: Account[]): string[] {
+export function validateAccountList(
+  accounts: Account[],
+  mode: AutomationMode = "authenticate",
+): string[] {
   const errors: string[] = [];
 
   if (!Array.isArray(accounts) || accounts.length === 0) {
@@ -93,7 +96,7 @@ export function validateAccountList(accounts: Account[]): string[] {
       errors.push(`Account ${index + 1}: invalid email address.`);
     }
 
-    if (!password) {
+    if (mode === "authenticate" && !password) {
       errors.push(`Account ${index + 1}: password is required.`);
     }
 

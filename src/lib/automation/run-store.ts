@@ -1,6 +1,7 @@
 import type {
   AutomationJob,
   AutomationRun,
+  AutomationMode,
   RunStatus,
 } from "@/types/automation";
 import { getJobsForRun } from "@/lib/automation/job-store";
@@ -13,7 +14,8 @@ const runs = new Map<
 export function createRun(
   targetUrl: string,
   totalJobs: number,
-  totalBatches: number
+  totalBatches: number,
+  mode: AutomationMode = "authenticate",
 ): AutomationRun {
   const now = new Date().toISOString();
 
@@ -22,6 +24,7 @@ export function createRun(
       .toString(36)
       .slice(2, 8)}`,
     targetUrl,
+    mode,
     totalJobs,
     totalBatches,
     status: "running",

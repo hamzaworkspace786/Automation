@@ -1,6 +1,7 @@
 import type { BrowserContext } from "playwright";
 import type {
   AutomationJob,
+  AutomationMode,
   JobStage,
 } from "@/types/automation";
 import { runWorkflow } from "./workflow";
@@ -15,6 +16,7 @@ export async function runAutomationJob(
   job: AutomationJob,
   context: BrowserContext,
   targetUrl: string,
+  mode: AutomationMode = "authenticate",
   onStage?: JobStageCallback
 ): Promise<AutomationJob> {
   console.log(
@@ -35,6 +37,7 @@ export async function runAutomationJob(
     job.account,
     context,
     targetUrl,
+    mode,
     (stage) => {
       onStage?.({
         ...job,
@@ -66,11 +69,12 @@ export async function runAutomationJob(
   }
 
   const message = sanitizeErrorMessage(result.message);
+  const failureStage = result.failureStage ?? "failed";
 
   return {
     ...job,
     status: "failed",
-    stage: "failed",
+    stage: failureStage,
     error: message,
     updatedAt: new Date().toISOString(),
     completedAt: new Date().toISOString(),

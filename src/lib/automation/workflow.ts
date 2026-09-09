@@ -1,12 +1,16 @@
 import type { BrowserContext, Page } from "playwright";
-import type { AutomationAccount, JobStage } from "@/types/automation";
+import type {
+  AutomationAccount,
+  AutomationMode,
+  JobStage,
+} from "@/types/automation";
 import { runAuthentication } from "./authentication";
-import { runPostAuthentication } from "./post-authentication";
 import { sanitizeErrorMessage } from "./validation";
 
 type WorkflowResult = {
   success: boolean;
   message: string;
+  failureStage?: JobStage;
 };
 
 type StageCallback = (stage: JobStage) => void;
@@ -15,6 +19,7 @@ export async function runWorkflow(
   account: AutomationAccount,
   context: BrowserContext,
   targetUrl: string,
+  mode: AutomationMode = "authenticate",
   onStage?: StageCallback,
 ): Promise<WorkflowResult> {
   let page: Page | undefined;
@@ -29,21 +34,40 @@ export async function runWorkflow(
       timeout: 30_000,
     });
 
+    if (mode === "visit-only") {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 10_000);
+      });
+
+      onStage?.("completed");
+
+      return {
+        success: true,
+        message: "Target URL visited successfully.",
+      };
+    }
+
     await page.waitForLoadState("networkidle", {
       timeout: 30_000,
     });
 
     onStage?.("authenticating");
 
-    await runAuthentication(
+    const authentication = await runAuthentication(
       page,
       account.email,
-      account.password,
+      account.password ?? "",
     );
 
-    onStage?.("post-authentication");
+    if (authentication.status !== "success") {
+      onStage?.(authentication.status);
 
-    await runPostAuthentication(page);
+      return {
+        success: false,
+        message: authentication.message,
+        failureStage: authentication.status,
+      };
+    }
 
     onStage?.("completed");
 
@@ -64,6 +88,7 @@ export async function runWorkflow(
     return {
       success: false,
       message,
+      failureStage: "failed",
     };
   } finally {
     if (page) {

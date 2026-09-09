@@ -1,7 +1,9 @@
 export type Account = {
   email: string;
-  password: string;
+  password?: string;
 };
+
+export type AutomationMode = "visit-only" | "authenticate";
 
 export type RunStatus =
   | "running"
@@ -18,6 +20,7 @@ export type JobStage =
   | "pending"
   | "opening"
   | "authenticating"
+  | "manual-verification-required"
   | "post-authentication"
   | "retrying"
   | "completed"
@@ -40,6 +43,7 @@ export type AutomationJob = {
 export type AutomationRun = {
   id: string;
   targetUrl: string;
+  mode: AutomationMode;
   totalJobs: number;
   totalBatches: number;
   status: RunStatus;
@@ -52,9 +56,10 @@ export type AutomationRun = {
 export type AutomationRequest = {
   targetUrl: string;
   accounts: Account[];
+  mode?: AutomationMode;
 };
 
 export type AutomationAccount = {
   email: string;
-  password: string;
+  password?: string;
 };

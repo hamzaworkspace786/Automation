@@ -102,6 +102,7 @@ export async function POST(
         retryJob,
         browserContext,
         run.targetUrl,
+        run.mode,
         (updatedJob) => {
           updateJobResult({
             ...updatedJob,

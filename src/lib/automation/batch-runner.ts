@@ -1,6 +1,7 @@
 import type { Browser, BrowserContext } from "playwright";
 import type {
   AutomationJob,
+  AutomationMode,
   JobStage,
 } from "@/types/automation";
 import {
@@ -19,6 +20,7 @@ import { sanitizeErrorMessage } from "./validation";
 export async function runBatch(
   jobs: AutomationJob[],
   targetUrl: string,
+  mode: AutomationMode = "authenticate",
   onStage?: JobStageCallback
 ): Promise<AutomationJob[]> {
   console.log(
@@ -51,7 +53,7 @@ export async function runBatch(
   try {
     const results: AutomationJob[] = [];
 
-    for (const job of jobs) {
+    await Promise.all(jobs.map(async (job) => {
       const currentJob: AutomationJob = {
         ...job,
         retryCount: job.retryCount ?? 0,
@@ -74,6 +76,7 @@ export async function runBatch(
             },
             context,
             targetUrl,
+            mode,
             (updatedJob, stage: JobStage) => {
               console.log(
                 `Job ${updatedJob.id} stage: ${stage}`
@@ -84,6 +87,11 @@ export async function runBatch(
           );
 
           if (result.status === "success") {
+            results.push(result);
+            break;
+          }
+
+          if (result.stage === "manual-verification-required") {
             results.push(result);
             break;
           }
@@ -132,6 +140,11 @@ export async function runBatch(
             completedAt: new Date().toISOString(),
           };
 
+          if (failedJob.stage === "manual-verification-required") {
+            results.push(failedJob);
+            break;
+          }
+
           if (currentJob.retryCount < currentJob.maxRetries) {
             const retryJob: AutomationJob = {
               ...failedJob,
@@ -162,7 +175,7 @@ export async function runBatch(
       }
 
       if (result?.status === "success") {
-        continue;
+        return;
       }
 
       if (!results.some((entry) => entry.id === currentJob.id) && result) {
@@ -174,7 +187,7 @@ export async function runBatch(
           completedAt: new Date().toISOString(),
         });
       }
-    }
+    }));
 
     console.log("Batch completed");
 
