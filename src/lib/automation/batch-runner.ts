@@ -8,6 +8,7 @@ import {
   createBrowser,
   createBrowserContext,
 } from "@/lib/browser/browser";
+import { assertSessionStateExists } from "@/lib/browser/session-state";
 import {
   AUTOMATION_MAX_RETRIES,
 } from "@/lib/batching";
@@ -30,7 +31,7 @@ export async function runBatch(
   let browser: Browser | undefined;
 
   try {
-    browser = await createBrowser();
+    browser = await createBrowser(mode !== "reuse-session");
   } catch (error) {
     const message = sanitizeErrorMessage(error);
 
@@ -68,7 +69,15 @@ export async function runBatch(
         let context: BrowserContext | undefined;
 
         try {
-          context = await createBrowserContext(browser);
+          const sessionStatePath =
+            mode === "reuse-session"
+              ? await assertSessionStateExists(currentJob.account.email)
+              : undefined;
+
+          context = await createBrowserContext(
+            browser,
+            sessionStatePath,
+          );
 
           result = await runAutomationJob(
             {
@@ -145,7 +154,16 @@ export async function runBatch(
             completedAt: new Date().toISOString(),
           };
 
+          if (failureMessage.startsWith("Session state file is missing")) {
+            failedJob.retryable = false;
+          }
+
           if (failedJob.stage === "manual-verification-required") {
+            results.push(failedJob);
+            break;
+          }
+
+          if (failedJob.retryable === false) {
             results.push(failedJob);
             break;
           }
@@ -175,7 +193,9 @@ export async function runBatch(
           results.push(failedJob);
           break;
         } finally {
-          await context?.close().catch(() => undefined);
+          if (!process.env.AUTOMATION_CDP_URL) {
+            await context?.close().catch(() => undefined);
+          }
         }
       }
 
@@ -199,7 +219,9 @@ export async function runBatch(
     return results;
   } finally {
     if (browser) {
-      await browser.close().catch(() => undefined);
+      if (!process.env.AUTOMATION_CDP_URL) {
+        await browser.close().catch(() => undefined);
+      }
     }
   }
 }

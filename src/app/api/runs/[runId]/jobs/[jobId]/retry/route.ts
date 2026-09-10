@@ -1,5 +1,6 @@
 import { getJob, updateJobResult } from "@/lib/automation/job-store";
 import { createBrowser, createBrowserContext } from "@/lib/browser/browser";
+import { assertSessionStateExists } from "@/lib/browser/session-state";
 import { toPublicJob } from "@/lib/automation/jobs";
 import { getRun } from "@/lib/automation/run-store";
 import { runAutomationJob } from "@/lib/automation/worker";
@@ -95,8 +96,15 @@ export async function POST(
     let browserContext;
 
     try {
-      browser = await createBrowser();
-      browserContext = await createBrowserContext(browser);
+      browser = await createBrowser(run.mode !== "reuse-session");
+      const sessionStatePath =
+        run.mode === "reuse-session"
+          ? await assertSessionStateExists(job.account.email)
+          : undefined;
+      browserContext = await createBrowserContext(
+        browser,
+        sessionStatePath,
+      );
 
       const result = await runAutomationJob(
         retryJob,
@@ -159,8 +167,13 @@ export async function POST(
         }
       );
     } finally {
-      await browserContext?.close().catch(() => undefined);
-      await browser?.close().catch(() => undefined);
+      if (!process.env.AUTOMATION_CDP_URL || run.mode === "reuse-session") {
+        await browserContext?.close().catch(() => undefined);
+      }
+
+      if (!process.env.AUTOMATION_CDP_URL || run.mode === "reuse-session") {
+        await browser?.close().catch(() => undefined);
+      }
     }
   } catch (error) {
     console.error("Retry request failed:", error);

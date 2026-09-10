@@ -3,7 +3,10 @@ export type Account = {
   password?: string;
 };
 
-export type AutomationMode = "visit-only" | "authenticate";
+export type AutomationMode =
+  | "visit-only"
+  | "authenticate"
+  | "reuse-session";
 
 export type RunStatus =
   | "running"

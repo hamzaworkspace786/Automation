@@ -35,7 +35,7 @@ export async function runWorkflow(
       timeout: 30_000,
     });
 
-    if (mode === "visit-only") {
+    if (mode === "visit-only" || mode === "reuse-session") {
       await new Promise((resolve) => {
         setTimeout(resolve, 10_000);
       });
@@ -44,7 +44,10 @@ export async function runWorkflow(
 
       return {
         success: true,
-        message: "Target URL visited successfully.",
+        message:
+          mode === "reuse-session"
+            ? "Authenticated browser session reached the target URL."
+            : "Target URL visited successfully.",
       };
     }
 

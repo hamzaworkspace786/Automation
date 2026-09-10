@@ -32,7 +32,7 @@ type ProgressResponse = {
 type RunSummary = {
   id: string;
   targetUrl: string;
-  mode: "visit-only" | "authenticate";
+  mode: "visit-only" | "authenticate" | "reuse-session";
   totalJobs: number;
   status: "running" | "completed" | "failed";
   createdAt: string;
@@ -60,8 +60,8 @@ export default function Home() {
     "https://share.google/nGDUcwrYZ6wG3lRvP",
   );
   const [executionMode, setExecutionMode] = useState<
-    "visit-only" | "authenticate"
-  >("authenticate");
+    "visit-only" | "authenticate" | "reuse-session"
+  >("reuse-session");
   const [accountsText, setAccountsText] = useState("");
 
   const [updates, setUpdates] = useState<JobUpdate[]>([]);
@@ -417,6 +417,7 @@ export default function Home() {
       let buffer = "";
       let retryCount = 0;
       const maxReconnectAttempts = 5;
+      let streamFinished = false;
 
       const streamEvents = async () => {
         while (true) {
@@ -499,12 +500,14 @@ export default function Home() {
               }
 
               if (eventName === "automation_completed") {
+                streamFinished = true;
                 setIsRunning(false);
                 setStatus("Automation completed");
                 retryCount = 0;
               }
 
               if (eventName === "automation_error") {
+                streamFinished = true;
                 setIsRunning(false);
                 setStatus(data.message || "Automation failed");
                 retryCount = 0;
@@ -522,7 +525,7 @@ export default function Home() {
         console.error("Automation stream failed:", error);
       }
 
-      if (retryCount < maxReconnectAttempts && runId) {
+      if (!streamFinished && retryCount < maxReconnectAttempts && runId) {
         retryCount += 1;
         setStatus("Connection lost, reconnecting...");
 
@@ -640,7 +643,10 @@ export default function Home() {
                 value={executionMode}
                 onChange={(event) =>
                   setExecutionMode(
-                    event.target.value as "visit-only" | "authenticate",
+                    event.target.value as
+                      | "visit-only"
+                      | "authenticate"
+                      | "reuse-session",
                   )
                 }
                 disabled={isRunning}
@@ -648,6 +654,9 @@ export default function Home() {
               >
                 <option value="visit-only">Visit URL only</option>
                 <option value="authenticate">Authenticate after opening</option>
+                <option value="reuse-session">
+                  Reuse signed-in Chrome session
+                </option>
               </select>
             </div>
 

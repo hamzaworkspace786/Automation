@@ -36,10 +36,15 @@ export async function POST(
       mode = "authenticate",
     } = body;
 
-    if (mode !== "visit-only" && mode !== "authenticate") {
+    if (
+      mode !== "visit-only" &&
+      mode !== "authenticate" &&
+      mode !== "reuse-session"
+    ) {
       return new Response(
         JSON.stringify({
-          error: "Automation mode must be visit-only or authenticate.",
+          error:
+            "Automation mode must be visit-only, authenticate, or reuse-session.",
         }),
         {
           status: 400,
