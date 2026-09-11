@@ -1,7 +1,7 @@
 import { access } from "node:fs/promises";
 import path from "node:path";
 
-const DEFAULT_SESSION_DIRECTORY = path.resolve("states");
+const DEFAULT_SESSION_DIRECTORY = path.join(process.cwd(), "states");
 
 export function getSessionStatePath(email: string): string {
   const directory = path.resolve(
@@ -11,6 +11,12 @@ export function getSessionStatePath(email: string): string {
   const fileName = `${encodeURIComponent(email.trim().toLowerCase())}.json`;
 
   return path.join(directory, fileName);
+}
+
+export function isGoogleSignInUrl(url: string): boolean {
+  return /(^|\.)accounts\.google\.com$/i.test(
+    new URL(url).hostname,
+  );
 }
 
 export async function assertSessionStateExists(

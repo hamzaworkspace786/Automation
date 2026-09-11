@@ -18,8 +18,9 @@ export async function createBrowser(
 export async function createBrowserContext(
   browser: Browser,
   storageStatePath?: string,
+  useConnectedBrowser = Boolean(process.env.AUTOMATION_CDP_URL),
 ): Promise<BrowserContext> {
-  if (process.env.AUTOMATION_CDP_URL) {
+  if (useConnectedBrowser) {
     const context = browser.contexts()[0];
 
     if (!context) {

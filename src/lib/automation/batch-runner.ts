@@ -77,6 +77,8 @@ export async function runBatch(
           context = await createBrowserContext(
             browser,
             sessionStatePath,
+            mode !== "reuse-session" &&
+              Boolean(process.env.AUTOMATION_CDP_URL),
           );
 
           result = await runAutomationJob(
@@ -193,7 +195,10 @@ export async function runBatch(
           results.push(failedJob);
           break;
         } finally {
-          if (!process.env.AUTOMATION_CDP_URL) {
+          if (
+            mode === "reuse-session" ||
+            !process.env.AUTOMATION_CDP_URL
+          ) {
             await context?.close().catch(() => undefined);
           }
         }
@@ -219,7 +224,10 @@ export async function runBatch(
     return results;
   } finally {
     if (browser) {
-      if (!process.env.AUTOMATION_CDP_URL) {
+      if (
+        mode === "reuse-session" ||
+        !process.env.AUTOMATION_CDP_URL
+      ) {
         await browser.close().catch(() => undefined);
       }
     }

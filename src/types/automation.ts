@@ -23,6 +23,7 @@ export type JobStage =
   | "pending"
   | "opening"
   | "authenticating"
+  | "auth-expired"
   | "manual-verification-required"
   | "post-authentication"
   | "retrying"

@@ -34,7 +34,7 @@ export function updateJobStage(
     status:
       stage === "completed"
         ? "success"
-        : stage === "failed"
+        : stage === "failed" || stage === "auth-expired"
           ? "failed"
           : stage === "retrying"
             ? "pending"
@@ -46,7 +46,7 @@ export function updateJobStage(
         ? nextTimestamp
         : job.startedAt),
     completedAt:
-      stage === "completed" || stage === "failed"
+      stage === "completed" || stage === "failed" || stage === "auth-expired"
         ? nextTimestamp
         : job.completedAt,
   };

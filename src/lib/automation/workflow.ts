@@ -6,6 +6,7 @@ import type {
 } from "@/types/automation";
 import { runAuthentication } from "./authentication";
 import { sanitizeErrorMessage } from "./validation";
+import { isGoogleSignInUrl } from "@/lib/browser/session-state";
 
 type WorkflowResult = {
   success: boolean;
@@ -29,6 +30,24 @@ export async function runWorkflow(
     onStage?.("opening");
 
     page = await context.newPage();
+
+    if (mode === "reuse-session") {
+      await page.goto("https://myaccount.google.com/", {
+        waitUntil: "domcontentloaded",
+        timeout: 15_000,
+      });
+
+      if (isGoogleSignInUrl(page.url())) {
+        onStage?.("auth-expired");
+
+        return {
+          success: false,
+          message: "AUTH_EXPIRED: the saved Google session is no longer valid.",
+          failureStage: "auth-expired",
+          retryable: false,
+        };
+      }
+    }
 
     await page.goto(targetUrl, {
       waitUntil: "domcontentloaded",

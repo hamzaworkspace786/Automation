@@ -44,7 +44,7 @@ export async function runAutomationJob(
         status:
           stage === "completed"
             ? "success"
-            : stage === "failed"
+            : stage === "failed" || stage === "auth-expired"
               ? "failed"
               : "running",
         stage,
