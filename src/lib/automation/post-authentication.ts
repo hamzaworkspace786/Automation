@@ -20,35 +20,50 @@ export async function runPostAuthentication(page: Page, targetUrl: string) {
     await threeDotsMenu.waitFor({ state: 'visible', timeout: 30000 });
     await threeDotsMenu.click();
 
-    // 4. Click the "Report review" option from the dropdown
-    // Using { force: true } to bypass invisible Google tracking overlays
+    // 4. Click the "Report review" option
     const reportReviewButton = page.getByRole('menuitem', { name: /report review/i })
       .or(page.locator('text="Report review"'))
       .first();
 
     await reportReviewButton.waitFor({ state: 'visible', timeout: 10000 });
+
+    // Start listening for a new tab BEFORE clicking
+    const newPagePromise = page.context().waitForEvent('page', { timeout: 8000 }).catch(() => null);
+
     await reportReviewButton.click({ force: true });
 
-    // 5. Wait for the reporting modal, then select the first category
-    // Using { force: true } to ensure click registers on the radio button
-    const firstCategoryRadio = page.getByRole('radio').first();
-    await firstCategoryRadio.waitFor({ state: 'visible', timeout: 15000 });
-    await firstCategoryRadio.click({ force: true });
+    // Check if a new tab opened, otherwise fall back to the original page
+    const newTab = await newPagePromise;
+    const activePage = newTab || page;
 
-    // 6. Click the Submit / Report button to finalize
-    // Using { force: true } to ensure the final submission works
-    const submitButton = page.locator('button:has-text("Submit"), button:has-text("Report")').last();
-    await submitButton.waitFor({ state: 'visible', timeout: 10000 });
+    if (newTab) {
+      console.log('Detected new tab for reporting flow.');
+      // Wait for the page's background scripts to finish loading the options
+      await activePage.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => { });
+      await activePage.waitForTimeout(2000); // Safety buffer for React/Angular hydration
+    }
+
+    // 5. Select a high-priority reporting category on the correct tab
+    // Aggressive Regex locator to pierce through Google's nested HTML tags
+    const categoryOption = activePage.getByText(/Bullying or harassment/i)
+      .or(activePage.locator(':text-matches("Bullying", "i")'))
+      .first();
+
+    await categoryOption.waitFor({ state: 'visible', timeout: 20000 });
+    await categoryOption.click({ force: true });
+
+    // 6. Click the Submit / Report button on the final screen
+    const submitButton = activePage.locator('button:has-text("Submit"), button:has-text("Report")').last();
+    await submitButton.waitFor({ state: 'visible', timeout: 15000 });
     await submitButton.click({ force: true });
 
     // Wait a brief moment for the submission network request to clear
-    await page.waitForTimeout(3000);
+    await activePage.waitForTimeout(3000);
     console.log('Successfully reported the review.');
 
   } catch (error) {
     console.error('Failed during post-authentication steps:', error);
 
-    // Safely capture a screenshot of the failure state
     if (!page.isClosed()) {
       try {
         await page.screenshot({ path: `failure-debug-${Date.now()}.png` });
