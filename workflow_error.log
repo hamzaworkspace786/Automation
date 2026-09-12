@@ -1,0 +1,709 @@
+[2026-09-12T02:27:09.013Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):11:22)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):76:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1o4q21n._.js:872:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1o4q21n._.js:451:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1o4q21n._.js:437:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1o4q21n._.js:175:45)
+[2026-09-12T02:27:23.841Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Target page, context or browser has been closed
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+locator.waitFor: Target page, context or browser has been closed
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):11:22)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):76:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1o4q21n._.js:872:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1o4q21n._.js:451:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1o4q21n._.js:437:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1o4q21n._.js:175:45)
+[2026-09-12T02:27:25.574Z] f22-bscs-1010@uo.edu.pk: page.goto: net::ERR_ABORTED; maybe frame was detached?
+Call log:
+[2m  - navigating to "https://myaccount.google.com/", waiting until "domcontentloaded"[22m
+
+page.goto: net::ERR_ABORTED; maybe frame was detached?
+Call log:
+[2m  - navigating to "https://myaccount.google.com/", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):24:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1o4q21n._.js:872:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1o4q21n._.js:451:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1o4q21n._.js:437:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1o4q21n._.js:175:45)
+[2026-09-12T02:28:26.059Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:682:22)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1033:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:28:31.942Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:997:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:28:33.677Z] f22-bscs-1010@uo.edu.pk: page.goto: net::ERR_ABORTED; maybe frame was detached?
+Call log:
+[2m  - navigating to "https://myaccount.google.com/", waiting until "domcontentloaded"[22m
+
+page.goto: net::ERR_ABORTED; maybe frame was detached?
+Call log:
+[2m  - navigating to "https://myaccount.google.com/", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:981:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:29:58.453Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:682:22)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):86:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:30:14.427Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:682:22)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):86:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:30:23.022Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Target page, context or browser has been closed
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+locator.waitFor: Target page, context or browser has been closed
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:682:22)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):86:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:38:48.810Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:682:22)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1043:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:39:06.892Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:682:22)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1043:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:39:22.200Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:682:22)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1043:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:42:26.823Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+locator.waitFor: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:682:22)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1043:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:42:29.540Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1007:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:42:31.000Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1007:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:47:09.527Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):12:22)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1043:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:47:30.953Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Target page, context or browser has been closed
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+locator.waitFor: Target page, context or browser has been closed
+Call log:
+[2m  - waiting for locator('button[aria-label*="Action menu"], button[aria-label*="More options"], button[aria-label="Actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):12:22)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1043:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:47:32.292Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1007:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:50:12.655Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 20000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label="More review actions"], button[aria-label="Actions"], button[aria-label*="Action menu"], button[aria-label="More options"], button[aria-label="More"]').first() to be visible[22m
+
+locator.waitFor: Timeout 20000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label="More review actions"], button[aria-label="Actions"], button[aria-label*="Action menu"], button[aria-label="More options"], button[aria-label="More"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):24:22)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1043:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:50:18.778Z] f22-bscs-1010@uo.edu.pk: page.waitForTimeout: Target page, context or browser has been closed
+page.waitForTimeout: Target page, context or browser has been closed
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):14:16)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1043:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:50:20.260Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1007:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:54:44.005Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Target page, context or browser has been closed
+Call log:
+[2m  - waiting for locator('button[aria-label="More review actions"], button[aria-label="Actions"], button[aria-label*="Action menu"], button[aria-label="More options"], button[aria-label="More"]').first() to be visible[22m
+
+locator.waitFor: Target page, context or browser has been closed
+Call log:
+[2m  - waiting for locator('button[aria-label="More review actions"], button[aria-label="Actions"], button[aria-label*="Action menu"], button[aria-label="More options"], button[aria-label="More"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):24:22)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1043:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:54:45.865Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1007:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:54:46.944Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1007:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:924:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:57:08.711Z] f22-bscs-1010@uo.edu.pk: page.waitForURL: Timeout 30000ms exceeded.
+=========================== logs ===========================
+waiting for navigation to "**/myaccount.google.com/**" until "load"
+  navigated to "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT25jeWQwNUdVRmRzVkZWdFpFdDNWVzFYYW00eFgxRRAB!2m1!1s0x0:0x4b8e4bdcfb5ce6da!3m1!1s2@1:CAIQACodChtycF9oOncyd05GUFdsVFVtZEt3VW1Xam4xX1E%7C%7C?hl=en-GB&source=sh/x/kp/local/m1/0&kgs=f23fdd886c7fd2ef&utm_source=sh/x/kp/local/m1/0"
+  navigated to "https://www.google.com/maps/reviews/@38.6525964,-90.2825402,17z/data=!3m1!4b1!4m6!14m5!1m4!2m3!1sCi9DQUlRQUNvZENodHljRjlvT25jeWQwNUdVRmRzVkZWdFpFdDNWVzFYYW00eFgxRRAB!2m1!1s0x0:0x4b8e4bdcfb5ce6da?hl=en-GB&entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D"
+  navigated to "https://www.google.com/maps/reviews/@38.6525964,-90.2825402,17z/data=!3m1!4b1!4m6!14m5!1m4!2m3!1sCi9DQUlRQUNvZENodHljRjlvT25jeWQwNUdVRmRzVkZWdFpFdDNWVzFYYW00eFgxRRAB!2m1!1s0x0:0x4b8e4bdcfb5ce6da?hl=en-GB&entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D"
+============================================================
+page.waitForURL: Timeout 30000ms exceeded.
+=========================== logs ===========================
+waiting for navigation to "**/myaccount.google.com/**" until "load"
+  navigated to "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT25jeWQwNUdVRmRzVkZWdFpFdDNWVzFYYW00eFgxRRAB!2m1!1s0x0:0x4b8e4bdcfb5ce6da!3m1!1s2@1:CAIQACodChtycF9oOncyd05GUFdsVFVtZEt3VW1Xam4xX1E%7C%7C?hl=en-GB&source=sh/x/kp/local/m1/0&kgs=f23fdd886c7fd2ef&utm_source=sh/x/kp/local/m1/0"
+  navigated to "https://www.google.com/maps/reviews/@38.6525964,-90.2825402,17z/data=!3m1!4b1!4m6!14m5!1m4!2m3!1sCi9DQUlRQUNvZENodHljRjlvT25jeWQwNUdVRmRzVkZWdFpFdDNWVzFYYW00eFgxRRAB!2m1!1s0x0:0x4b8e4bdcfb5ce6da?hl=en-GB&entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D"
+  navigated to "https://www.google.com/maps/reviews/@38.6525964,-90.2825402,17z/data=!3m1!4b1!4m6!14m5!1m4!2m3!1sCi9DQUlRQUNvZENodHljRjlvT25jeWQwNUdVRmRzVkZWdFpFdDNWVzFYYW00eFgxRRAB!2m1!1s0x0:0x4b8e4bdcfb5ce6da?hl=en-GB&entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D"
+============================================================
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):18:20)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):91:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\worker.ts+[app-route]+(ecmascript):27:20)
+    at async eval (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js?id=[project]\src\lib\automation\batch-runner.ts+[app-route]+(ecmascript):60:30)
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js?id=[project]\src\lib\automation\batch-runner.ts+[app-route]+(ecmascript):46:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:57:44.873Z] f22-bscs-1010@uo.edu.pk: page.waitForURL: Timeout 30000ms exceeded.
+=========================== logs ===========================
+waiting for navigation to "**/myaccount.google.com/**" until "load"
+  navigated to "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT25jeWQwNUdVRmRzVkZWdFpFdDNWVzFYYW00eFgxRRAB!2m1!1s0x0:0x4b8e4bdcfb5ce6da!3m1!1s2@1:CAIQACodChtycF9oOncyd05GUFdsVFVtZEt3VW1Xam4xX1E%7C%7C?hl=en-GB&source=sh/x/kp/local/m1/0&kgs=f23fdd886c7fd2ef&utm_source=sh/x/kp/local/m1/0"
+  navigated to "https://www.google.com/maps/reviews/@38.6525964,-90.2825402,17z/data=!3m1!4b1!4m6!14m5!1m4!2m3!1sCi9DQUlRQUNvZENodHljRjlvT25jeWQwNUdVRmRzVkZWdFpFdDNWVzFYYW00eFgxRRAB!2m1!1s0x0:0x4b8e4bdcfb5ce6da?hl=en-GB&entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D"
+  navigated to "https://www.google.com/maps/reviews/@38.6525964,-90.2825402,17z/data=!3m1!4b1!4m6!14m5!1m4!2m3!1sCi9DQUlRQUNvZENodHljRjlvT25jeWQwNUdVRmRzVkZWdFpFdDNWVzFYYW00eFgxRRAB!2m1!1s0x0:0x4b8e4bdcfb5ce6da?hl=en-GB&entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D"
+============================================================
+page.waitForURL: Timeout 30000ms exceeded.
+=========================== logs ===========================
+waiting for navigation to "**/myaccount.google.com/**" until "load"
+  navigated to "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT25jeWQwNUdVRmRzVkZWdFpFdDNWVzFYYW00eFgxRRAB!2m1!1s0x0:0x4b8e4bdcfb5ce6da!3m1!1s2@1:CAIQACodChtycF9oOncyd05GUFdsVFVtZEt3VW1Xam4xX1E%7C%7C?hl=en-GB&source=sh/x/kp/local/m1/0&kgs=f23fdd886c7fd2ef&utm_source=sh/x/kp/local/m1/0"
+  navigated to "https://www.google.com/maps/reviews/@38.6525964,-90.2825402,17z/data=!3m1!4b1!4m6!14m5!1m4!2m3!1sCi9DQUlRQUNvZENodHljRjlvT25jeWQwNUdVRmRzVkZWdFpFdDNWVzFYYW00eFgxRRAB!2m1!1s0x0:0x4b8e4bdcfb5ce6da?hl=en-GB&entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D"
+  navigated to "https://www.google.com/maps/reviews/@38.6525964,-90.2825402,17z/data=!3m1!4b1!4m6!14m5!1m4!2m3!1sCi9DQUlRQUNvZENodHljRjlvT25jeWQwNUdVRmRzVkZWdFpFdDNWVzFYYW00eFgxRRAB!2m1!1s0x0:0x4b8e4bdcfb5ce6da?hl=en-GB&entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D"
+============================================================
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):18:20)
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):91:193)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\worker.ts+[app-route]+(ecmascript):27:20)
+    at async eval (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js?id=[project]\src\lib\automation\batch-runner.ts+[app-route]+(ecmascript):60:30)
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js?id=[project]\src\lib\automation\batch-runner.ts+[app-route]+(ecmascript):46:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T02:57:53.095Z] f22-bscs-1010@uo.edu.pk: page.screenshot: Target page, context or browser has been closed
+page.screenshot: Target page, context or browser has been closed
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):47:20)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):91:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\worker.ts+[app-route]+(ecmascript):27:20)
+    at async eval (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js?id=[project]\src\lib\automation\batch-runner.ts+[app-route]+(ecmascript):60:30)
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js?id=[project]\src\lib\automation\batch-runner.ts+[app-route]+(ecmascript):46:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:05:01.882Z] f22-bscs-1010@uo.edu.pk: page.goto: net::ERR_NAME_NOT_RESOLVED at https://share.google.com/YOUR_LINK_HERE
+Call log:
+[2m  - navigating to "https://share.google.com/YOUR_LINK_HERE", waiting until "domcontentloaded"[22m
+
+page.goto: net::ERR_NAME_NOT_RESOLVED at https://share.google.com/YOUR_LINK_HERE
+Call log:
+[2m  - navigating to "https://share.google.com/YOUR_LINK_HERE", waiting until "domcontentloaded"[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):31:20)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1066:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:05:07.415Z] f22-bscs-1010@uo.edu.pk: page.goto: net::ERR_NAME_NOT_RESOLVED at https://share.google.com/YOUR_LINK_HERE
+Call log:
+[2m  - navigating to "https://share.google.com/YOUR_LINK_HERE", waiting until "domcontentloaded"[22m
+
+page.goto: net::ERR_NAME_NOT_RESOLVED at https://share.google.com/YOUR_LINK_HERE
+Call log:
+[2m  - navigating to "https://share.google.com/YOUR_LINK_HERE", waiting until "domcontentloaded"[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):31:20)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1066:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:05:13.759Z] f22-bscs-1010@uo.edu.pk: page.goto: net::ERR_NAME_NOT_RESOLVED at https://share.google.com/YOUR_LINK_HERE
+Call log:
+[2m  - navigating to "https://share.google.com/YOUR_LINK_HERE", waiting until "domcontentloaded"[22m
+
+page.goto: net::ERR_NAME_NOT_RESOLVED at https://share.google.com/YOUR_LINK_HERE
+Call log:
+[2m  - navigating to "https://share.google.com/YOUR_LINK_HERE", waiting until "domcontentloaded"[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):31:20)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1066:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:09:31.209Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('[aria-label*="options" i], [aria-label*="Actions" i], [aria-haspopup="menu"]').first() to be visible[22m
+[2m    32 × locator resolved to hidden <div id="" tabindex="0" role="button" name="H1umtb" aria-controls="" aria-label="Type" jscontroller="AEXcO" aria-haspopup="menu" aria-expanded="false" jsaction="focusin:S6vrfb; focusout:S6vrfb;click:JIbuQc; keydown:I481le;" class="glX3de frsiVb CNlAe EwXqJf  iXBMtb oisqfd  seURn rkuUBe  Ss7qXc  Ss7qXc">…</div>[22m
+
+locator.waitFor: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('[aria-label*="options" i], [aria-label*="Actions" i], [aria-haspopup="menu"]').first() to be visible[22m
+[2m    32 × locator resolved to hidden <div id="" tabindex="0" role="button" name="H1umtb" aria-controls="" aria-label="Type" jscontroller="AEXcO" aria-haspopup="menu" aria-expanded="false" jsaction="focusin:S6vrfb; focusout:S6vrfb;click:JIbuQc; keydown:I481le;" class="glX3de frsiVb CNlAe EwXqJf  iXBMtb oisqfd  seURn rkuUBe  Ss7qXc  Ss7qXc">…</div>[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):39:28)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1066:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:09:34.210Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://myaccount.google.com/", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://myaccount.google.com/", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1005:28)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:09:36.084Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:1030:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:22:07.818Z] f22-bscs-1010@uo.edu.pk: page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "networkidle"[22m
+
+page.goto: Timeout 30000ms exceeded.
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "networkidle"[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):17:20)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):87:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:22:17.522Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "networkidle"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "networkidle"[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):17:20)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):87:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:22:19.954Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):50:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:25:01.151Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label="Actions"], button[aria-label="More actions"]').first() to be visible[22m
+
+locator.waitFor: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[aria-label="Actions"], button[aria-label="More actions"]').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):24:29)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):87:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:25:05.169Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):17:20)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):87:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:25:06.372Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):50:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:28:53.672Z] f22-bscs-1010@uo.edu.pk: locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('menuitem', { name: /report review/i }).or(locator('text="Report review"')).first()[22m
+[2m    - locator resolved to <div class="mLuXec">Report review</div>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <div vet="24392" tabindex="0" class="fxNQSd" data-index="1" aria-checked="false" role="menuitemradio" ved="1i:2,t:24392,e:1,p:WMWkarLGNcX-7_UPqaLCmQM:11" jsaction="click: actionmenu.select; keydown: actionmenu.keydown">…</div> intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <div vet="24392" tabindex="0" class="fxNQSd" data-index="1" aria-checked="false" role="menuitemradio" ved="1i:2,t:24392,e:1,p:WMWkarLGNcX-7_UPqaLCmQM:11" jsaction="click: actionmenu.select; keydown: actionmenu.keydown">…</div> intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    56 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <div vet="24392" tabindex="0" class="fxNQSd" data-index="1" aria-checked="false" role="menuitemradio" ved="1i:2,t:24392,e:1,p:WMWkarLGNcX-7_UPqaLCmQM:11" jsaction="click: actionmenu.select; keydown: actionmenu.keydown">…</div> intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('menuitem', { name: /report review/i }).or(locator('text="Report review"')).first()[22m
+[2m    - locator resolved to <div class="mLuXec">Report review</div>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <div vet="24392" tabindex="0" class="fxNQSd" data-index="1" aria-checked="false" role="menuitemradio" ved="1i:2,t:24392,e:1,p:WMWkarLGNcX-7_UPqaLCmQM:11" jsaction="click: actionmenu.select; keydown: actionmenu.keydown">…</div> intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <div vet="24392" tabindex="0" class="fxNQSd" data-index="1" aria-checked="false" role="menuitemradio" ved="1i:2,t:24392,e:1,p:WMWkarLGNcX-7_UPqaLCmQM:11" jsaction="click: actionmenu.select; keydown: actionmenu.keydown">…</div> intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    56 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <div vet="24392" tabindex="0" class="fxNQSd" data-index="1" aria-checked="false" role="menuitemradio" ved="1i:2,t:24392,e:1,p:WMWkarLGNcX-7_UPqaLCmQM:11" jsaction="click: actionmenu.select; keydown: actionmenu.keydown">…</div> intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):37:34)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):87:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:29:11.249Z] f22-bscs-1010@uo.edu.pk: locator.click: Target page, context or browser has been closed
+Call log:
+[2m  - waiting for getByRole('menuitem', { name: /report review/i }).or(locator('text="Report review"')).first()[22m
+[2m    - locator resolved to <div class="mLuXec">Report review</div>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <div vet="24392" tabindex="0" class="fxNQSd" data-index="1" aria-checked="false" role="menuitemradio" ved="1i:2,t:24392,e:1,p:fsWkau-XF56ckdUP1pzxiQE:11" jsaction="click: actionmenu.select; keydown: actionmenu.keydown">…</div> intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <div vet="24392" tabindex="0" class="fxNQSd" data-index="1" aria-checked="false" role="menuitemradio" ved="1i:2,t:24392,e:1,p:fsWkau-XF56ckdUP1pzxiQE:11" jsaction="click: actionmenu.select; keydown: actionmenu.keydown">…</div> intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    19 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <div vet="24392" tabindex="0" class="fxNQSd" data-index="1" aria-checked="false" role="menuitemradio" ved="1i:2,t:24392,e:1,p:fsWkau-XF56ckdUP1pzxiQE:11" jsaction="click: actionmenu.select; keydown: actionmenu.keydown">…</div> intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+
+locator.click: Target page, context or browser has been closed
+Call log:
+[2m  - waiting for getByRole('menuitem', { name: /report review/i }).or(locator('text="Report review"')).first()[22m
+[2m    - locator resolved to <div class="mLuXec">Report review</div>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <div vet="24392" tabindex="0" class="fxNQSd" data-index="1" aria-checked="false" role="menuitemradio" ved="1i:2,t:24392,e:1,p:fsWkau-XF56ckdUP1pzxiQE:11" jsaction="click: actionmenu.select; keydown: actionmenu.keydown">…</div> intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <div vet="24392" tabindex="0" class="fxNQSd" data-index="1" aria-checked="false" role="menuitemradio" ved="1i:2,t:24392,e:1,p:fsWkau-XF56ckdUP1pzxiQE:11" jsaction="click: actionmenu.select; keydown: actionmenu.keydown">…</div> intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    19 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <div vet="24392" tabindex="0" class="fxNQSd" data-index="1" aria-checked="false" role="menuitemradio" ved="1i:2,t:24392,e:1,p:fsWkau-XF56ckdUP1pzxiQE:11" jsaction="click: actionmenu.select; keydown: actionmenu.keydown">…</div> intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):37:34)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):87:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:29:12.533Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):50:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:34:24.367Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('radio').first() to be visible[22m
+
+locator.waitFor: Timeout 15000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('radio').first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):43:34)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):87:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:34:28.708Z] f22-bscs-1010@uo.edu.pk: page.goto: net::ERR_ABORTED at https://share.google/nGDUcwrYZ6wG3lRvP
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: net::ERR_ABORTED at https://share.google/nGDUcwrYZ6wG3lRvP
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\post-authentication.ts+[app-route]+(ecmascript):17:20)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):87:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T03:34:30.280Z] f22-bscs-1010@uo.edu.pk: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://share.google/nGDUcwrYZ6wG3lRvP", waiting until "domcontentloaded"[22m
+
+    at runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0-jzpkk._.js?id=[project]\src\lib\automation\workflow.ts+[app-route]+(ecmascript):50:24)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:947:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
