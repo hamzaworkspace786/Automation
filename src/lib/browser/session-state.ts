@@ -1,4 +1,4 @@
-import { access } from "node:fs/promises";
+import { access, unlink } from "node:fs/promises";
 import path from "node:path";
 
 const DEFAULT_SESSION_DIRECTORY = path.join(process.cwd(), "states");
@@ -33,4 +33,21 @@ export async function assertSessionStateExists(
   }
 
   return statePath;
+}
+
+export async function removeSessionState(email: string): Promise<void> {
+  try {
+    await unlink(getSessionStatePath(email));
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
+      return;
+    }
+
+    console.error("Failed to remove expired session state.");
+  }
 }

@@ -6,7 +6,10 @@ import type {
 } from "@/types/automation";
 import { runAuthentication } from "./authentication";
 import { sanitizeErrorMessage } from "./validation";
-import { isGoogleSignInUrl } from "@/lib/browser/session-state";
+import {
+  isGoogleSignInUrl,
+  removeSessionState,
+} from "@/lib/browser/session-state";
 
 type WorkflowResult = {
   success: boolean;
@@ -38,6 +41,7 @@ export async function runWorkflow(
       });
 
       if (isGoogleSignInUrl(page.url())) {
+        await removeSessionState(account.email);
         onStage?.("auth-expired");
 
         return {
