@@ -1,40 +1,20 @@
-import { chromium, type Browser, type BrowserContext } from "playwright";
+import { chromium, type BrowserContext } from "playwright";
+import { getAccountProfileDir } from "./session-state";
 
-export async function createBrowser(
-  useConnectedBrowser = true,
-): Promise<Browser> {
-  const cdpUrl = process.env.AUTOMATION_CDP_URL;
-
-  if (cdpUrl && useConnectedBrowser) {
-    return chromium.connectOverCDP(cdpUrl);
-  }
-
-  return chromium.launch({
-    headless: false,
-    channel: "chrome",
-  });
-}
-
-export async function createBrowserContext(
-  browser: Browser,
-  storageStatePath?: string,
-  useConnectedBrowser = Boolean(process.env.AUTOMATION_CDP_URL),
+export async function launchAccountContext(
+  email: string,
+  headless = false
 ): Promise<BrowserContext> {
-  if (useConnectedBrowser) {
-    const context = browser.contexts()[0];
+  const profileDir = getAccountProfileDir(email);
 
-    if (!context) {
-      throw new Error("Connected Chrome has no available browser context.");
-    }
-
-    return context;
-  }
-
-  return browser.newContext(
-    storageStatePath
-      ? {
-          storageState: storageStatePath,
-        }
-      : undefined,
-  );
+  return chromium.launchPersistentContext(profileDir, {
+    headless,
+    channel: "chrome",
+    viewport: { width: 1280, height: 720 },
+    args: [
+      "--disable-blink-features=AutomationControlled",
+      "--no-first-run",
+      "--no-service-autorun",
+    ],
+  });
 }

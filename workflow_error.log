@@ -909,3 +909,17 @@ Call log:
     at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:457:30
     at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:443:9)
     at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0xdqu-g._.js:181:45)
+[2026-09-12T18:55:59.904Z] f22-bscs-1010@uo.edu.pk: locator.waitFor: Timeout 20000ms exceeded.
+Call log:
+[2m  - waiting for getByText(/Bullying or harassment/i).or(locator(':text-matches("Bullying", "i")')).first() to be visible[22m
+
+locator.waitFor: Timeout 20000ms exceeded.
+Call log:
+[2m  - waiting for getByText(/Bullying or harassment/i).or(locator(':text-matches("Bullying", "i")')).first() to be visible[22m
+
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__06c4p6e._.js:686:30)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__06c4p6e._.js:1040:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__06c4p6e._.js:926:20)
+    at async C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__06c4p6e._.js:435:26
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__06c4p6e._.js:422:5)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__06c4p6e._.js:181:45)

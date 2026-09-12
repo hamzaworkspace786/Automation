@@ -1,16 +1,9 @@
 import type { BrowserContext, Page } from "playwright";
-import type {
-  AutomationAccount,
-  AutomationMode,
-  JobStage,
-} from "@/types/automation";
+import type { AutomationAccount, AutomationMode, JobStage } from "@/types/automation";
 import { runAuthentication } from "./authentication";
 import { runPostAuthentication } from "./post-authentication";
 import { sanitizeErrorMessage } from "./validation";
-import {
-  isGoogleSignInUrl,
-  removeSessionState,
-} from "@/lib/browser/session-state";
+import { isGoogleSignInUrl } from "@/lib/browser/session-state";
 import fs from "fs";
 
 type WorkflowResult = {
@@ -34,7 +27,8 @@ export async function runWorkflow(
   try {
     onStage?.("opening");
 
-    page = await context.newPage();
+    const pages = context.pages();
+    page = pages.length > 0 ? pages[0] : await context.newPage();
 
     if (mode === "reuse-session") {
       try {
@@ -44,21 +38,18 @@ export async function runWorkflow(
         });
       } catch (error) {
         if (error instanceof Error && error.message.includes("ERR_ABORTED")) {
-          // Session cookies may trigger redirects that abort the initial navigation.
-          // Wait for the page to settle so we can reliably check the final URL.
           await page.waitForLoadState("domcontentloaded").catch(() => undefined);
         } else {
           throw error;
         }
       }
 
-      if (isGoogleSignInUrl(page.url())) {
-        await removeSessionState(account.email);
+      if (page && isGoogleSignInUrl(page.url())) {
         onStage?.("auth-expired");
 
         return {
           success: false,
-          message: "AUTH_EXPIRED: the saved Google session is no longer valid.",
+          message: "AUTH_EXPIRED: The saved Google session is no longer valid. Manual login required.",
           failureStage: "auth-expired",
           retryable: false,
         };
@@ -72,24 +63,16 @@ export async function runWorkflow(
       });
     } catch (error) {
       if (error instanceof Error && error.message.includes("ERR_ABORTED")) {
-        // Ignored. The navigation was aborted likely due to a client-side redirect (e.g. share.google -> maps).
-        // The page will continue loading in the background and the locators will wait for elements.
+        // Ignored. Client-side redirect in progress
       } else {
         throw error;
       }
     }
 
     if (mode === "visit-only") {
-      await new Promise((resolve) => {
-        setTimeout(resolve, 10_000);
-      });
-
+      await page.waitForTimeout(10_000);
       onStage?.("completed");
-
-      return {
-        success: true,
-        message: "Target URL visited successfully.",
-      };
+      return { success: true, message: "Target URL visited successfully." };
     }
 
     if (mode === "authenticate") {
@@ -104,7 +87,6 @@ export async function runWorkflow(
 
       if (authentication.status !== "success") {
         onStage?.(authentication.status);
-
         return {
           success: false,
           message: authentication.message,
@@ -115,24 +97,13 @@ export async function runWorkflow(
     }
 
     onStage?.("post-authentication");
-
-    // Fixed: Passing targetUrl as the second argument
     await runPostAuthentication(page, targetUrl);
-
     onStage?.("completed");
 
-    return {
-      success: true,
-      message: "Browser workflow completed successfully.",
-    };
+    return { success: true, message: "Browser workflow completed successfully." };
   } catch (error) {
     const message = sanitizeErrorMessage(error);
-
-    console.error(
-      `Workflow failed for ${account.email}:`,
-      message,
-    );
-
+    console.error(`Workflow failed for ${account.email}:`, message);
     fs.appendFileSync('workflow_error.log', `[${new Date().toISOString()}] ${account.email}: ${message}\n${error instanceof Error ? error.stack : ''}\n`);
 
     onStage?.("failed");
@@ -147,7 +118,7 @@ export async function runWorkflow(
       try {
         await page.close();
       } catch {
-        // Ignore page cleanup failures so the original job failure stays intact.
+        // Ignore page cleanup failures
       }
     }
   }

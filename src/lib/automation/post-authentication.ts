@@ -44,21 +44,30 @@ export async function runPostAuthentication(page: Page, targetUrl: string) {
     }
 
     // 5. Select a high-priority reporting category on the correct tab
-    // Aggressive Regex locator to pierce through Google's nested HTML tags
     const categoryOption = activePage.getByText(/Bullying or harassment/i)
       .or(activePage.locator(':text-matches("Bullying", "i")'))
       .first();
 
     await categoryOption.waitFor({ state: 'visible', timeout: 20000 });
-    await categoryOption.click({ force: true });
+    await categoryOption.click();
+
+    // Wait 1.5 seconds for Google's UI animation to slide to the next screen
+    // and for the Submit button to become fully interactive.
+    await activePage.waitForTimeout(1500);
 
     // 6. Click the Submit / Report button on the final screen
-    const submitButton = activePage.locator('button:has-text("Submit"), button:has-text("Report")').last();
-    await submitButton.waitFor({ state: 'visible', timeout: 15000 });
-    await submitButton.click({ force: true });
+    // Stronger locator to ensure it only grabs the exact Submit button on the active pane
+    const submitButton = activePage.getByRole('button', { name: /submit|report/i })
+      .or(activePage.locator('button:has-text("Submit"), button:has-text("Report")'))
+      .last();
 
-    // Wait a brief moment for the submission network request to clear
-    await activePage.waitForTimeout(3000);
+    await submitButton.waitFor({ state: 'visible', timeout: 15000 });
+
+    // Remove force: true so Playwright verifies the button is actually clickable
+    await submitButton.click();
+
+    // Wait 4 seconds for the network request to actually submit to Google's servers before closing
+    await activePage.waitForTimeout(4000);
     console.log('Successfully reported the review.');
 
   } catch (error) {
