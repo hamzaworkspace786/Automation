@@ -2,11 +2,14 @@ import { Page } from 'playwright';
 
 export async function runPostAuthentication(page: Page, targetUrl: string) {
   try {
-    // 1. Wait for login redirect to finish
-    await page.waitForURL((url) => !url.href.includes('accounts.google.com/signin'), {
-      timeout: 30000,
-      waitUntil: 'domcontentloaded'
-    });
+    // 1. Wait for login redirect to finish if currently on a sign-in page
+    if (page.url().includes('accounts.google.com')) {
+      console.log('Detected Google Sign-In page. Waiting up to 3 minutes for manual login...');
+      await page.waitForURL((url) => !url.href.includes('accounts.google.com/signin'), {
+        timeout: 180000,
+        waitUntil: 'domcontentloaded'
+      });
+    }
 
     // 2. Navigate directly to your Google Maps review link
     console.log(`Navigating to target URL: ${targetUrl}`);
@@ -38,9 +41,21 @@ export async function runPostAuthentication(page: Page, targetUrl: string) {
 
     if (newTab) {
       console.log('Detected new tab for reporting flow.');
-      // Wait for the page's background scripts to finish loading the options
       await activePage.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => { });
-      await activePage.waitForTimeout(2000); // Safety buffer for React/Angular hydration
+      await activePage.waitForTimeout(2000);
+    }
+
+    // CHECKPOINT: If Google demands a sign-in inside the new reporting tab, pause and wait for you to log in
+    const isSignInTab = activePage.url().includes('accounts.google.com') ||
+      await activePage.locator('input[type="email"], input[type="password"]').isVisible().catch(() => false);
+
+    if (isSignInTab) {
+      console.log('Google requested sign-in on the report window. Waiting up to 3 minutes for you to log in manually...');
+      await activePage.waitForURL((url) => !url.href.includes('accounts.google.com'), {
+        timeout: 180000,
+        waitUntil: 'domcontentloaded'
+      });
+      await activePage.waitForTimeout(2000);
     }
 
     // 5. Select a high-priority reporting category on the correct tab
@@ -48,22 +63,18 @@ export async function runPostAuthentication(page: Page, targetUrl: string) {
       .or(activePage.locator(':text-matches("Bullying", "i")'))
       .first();
 
-    await categoryOption.waitFor({ state: 'visible', timeout: 20000 });
+    await categoryOption.waitFor({ state: 'visible', timeout: 30000 });
     await categoryOption.click();
 
     // Wait 1.5 seconds for Google's UI animation to slide to the next screen
-    // and for the Submit button to become fully interactive.
     await activePage.waitForTimeout(1500);
 
     // 6. Click the Submit / Report button on the final screen
-    // Stronger locator to ensure it only grabs the exact Submit button on the active pane
     const submitButton = activePage.getByRole('button', { name: /submit|report/i })
       .or(activePage.locator('button:has-text("Submit"), button:has-text("Report")'))
       .last();
 
     await submitButton.waitFor({ state: 'visible', timeout: 15000 });
-
-    // Remove force: true so Playwright verifies the button is actually clickable
     await submitButton.click();
 
     // Wait 4 seconds for the network request to actually submit to Google's servers before closing
