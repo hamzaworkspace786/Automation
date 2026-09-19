@@ -2,7 +2,7 @@ import { Page } from 'playwright';
 
 export async function runPostAuthentication(page: Page, targetUrl: string) {
   try {
-    // 1. Wait for login redirect to finish if currently on a sign-in page
+    // 1. If Google prompts for login, give up to 3 minutes for manual input
     if (page.url().includes('accounts.google.com')) {
       console.log('Detected Google Sign-In page. Waiting up to 3 minutes for manual login...');
       await page.waitForURL((url) => !url.href.includes('accounts.google.com/signin'), {
@@ -11,31 +11,29 @@ export async function runPostAuthentication(page: Page, targetUrl: string) {
       });
     }
 
-    // 2. Navigate directly to your Google Maps review link
+    // 2. Navigate to target URL
     console.log(`Navigating to target URL: ${targetUrl}`);
     await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
-    // 3. Locate and click the three-dots menu next to the review
+    // 3. Locate and click three-dots menu (Expanded to catch generic localized "More/Actions" attributes)
     const threeDotsMenu = page.locator(
-      'button[aria-label="More review actions"], button[aria-label="Action menu"], button[aria-label*="action" i], button[aria-label*="option" i]'
+      'button[aria-label*="review" i], button[aria-label*="action" i], button[aria-label*="option" i], button[aria-label*="more" i], button[aria-label*="továbbiak" i], button[aria-label*="daugiau" i], button[aria-label*="más" i], button[aria-label*="mais" i], button[aria-label*="เพิ่มเติม"], button[aria-label*="meer" i], button[aria-label*="mer" i]'
     ).first();
 
     await threeDotsMenu.waitFor({ state: 'visible', timeout: 30000 });
     await threeDotsMenu.click();
 
-    // 4. Click the "Report review" option
-    const reportReviewButton = page.getByRole('menuitem', { name: /report review/i })
-      .or(page.locator('text="Report review"'))
+    // 4. Click "Report review" (Supports EN, HU, LT, ES, PT, TH, NL, SV)
+    const reportMenuRegex = /report review|report|bejelentés|pranešti|denunciar|รายงาน|melden|rapportera/i;
+    const reportReviewButton = page.getByRole('menuitem', { name: reportMenuRegex })
+      .or(page.getByText(reportMenuRegex, { exact: false }))
       .first();
 
     await reportReviewButton.waitFor({ state: 'visible', timeout: 10000 });
 
-    // Start listening for a new tab BEFORE clicking
     const newPagePromise = page.context().waitForEvent('page', { timeout: 8000 }).catch(() => null);
-
     await reportReviewButton.click({ force: true });
 
-    // Check if a new tab opened, otherwise fall back to the original page
     const newTab = await newPagePromise;
     const activePage = newTab || page;
 
@@ -45,12 +43,12 @@ export async function runPostAuthentication(page: Page, targetUrl: string) {
       await activePage.waitForTimeout(2000);
     }
 
-    // CHECKPOINT: If Google demands a sign-in inside the new reporting tab, pause and wait for you to log in
+    // 5. Check if Google requests authentication inside reporting popup
     const isSignInTab = activePage.url().includes('accounts.google.com') ||
       await activePage.locator('input[type="email"], input[type="password"]').isVisible().catch(() => false);
 
     if (isSignInTab) {
-      console.log('Google requested sign-in on the report window. Waiting up to 3 minutes for you to log in manually...');
+      console.log('Google requested sign-in on the report window. Waiting up to 3 minutes for manual login...');
       await activePage.waitForURL((url) => !url.href.includes('accounts.google.com'), {
         timeout: 180000,
         waitUntil: 'domcontentloaded'
@@ -58,26 +56,26 @@ export async function runPostAuthentication(page: Page, targetUrl: string) {
       await activePage.waitForTimeout(2000);
     }
 
-    // 5. Select a high-priority reporting category on the correct tab
-    const categoryOption = activePage.getByText(/Bullying or harassment/i)
-      .or(activePage.locator(':text-matches("Bullying", "i")'))
+    // 6. Select category: Bullying or harassment (Supports EN, HU, LT, ES, PT, TH, NL, SV)
+    const categoryRegex = /bullying|harassment|zaklatás|megfélemlítés|patyčios|priekabiavimas|acoso|intimidación|assédio|กลั่นแกล้ง|คุกคาม|pesten|intimidatie|mobbning|trakasserier/i;
+    const categoryOption = activePage.getByText(categoryRegex)
+      .or(activePage.locator(`:text-matches("${categoryRegex.source}", "i")`))
       .first();
 
     await categoryOption.waitFor({ state: 'visible', timeout: 30000 });
     await categoryOption.click();
 
-    // Wait 1.5 seconds for Google's UI animation to slide to the next screen
     await activePage.waitForTimeout(1500);
 
-    // 6. Click the Submit / Report button on the final screen
-    const submitButton = activePage.getByRole('button', { name: /submit|report/i })
-      .or(activePage.locator('button:has-text("Submit"), button:has-text("Report")'))
+    // 7. Click Submit / Report (Supports EN, HU, LT, ES, PT, TH, NL, SV)
+    const submitRegex = /submit|report|küldés|elküld|pateikti|siųsti|enviar|denunciar|ส่ง|verzenden|melden|skicka|rapportera/i;
+    const submitButton = activePage.getByRole('button', { name: submitRegex })
+      .or(activePage.locator('button').filter({ hasText: submitRegex }))
       .last();
 
     await submitButton.waitFor({ state: 'visible', timeout: 15000 });
     await submitButton.click();
 
-    // Wait 4 seconds for the network request to actually submit to Google's servers before closing
     await activePage.waitForTimeout(4000);
     console.log('Successfully reported the review.');
 
