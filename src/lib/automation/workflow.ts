@@ -1,5 +1,5 @@
 import type { BrowserContext, Page } from "playwright";
-import type { AutomationAccount, AutomationMode, JobStage } from "@/types/automation";
+import type { Account, AutomationMode, JobStage } from "@/types/automation";
 import { runAuthentication } from "./authentication";
 import { runPostAuthentication } from "./post-authentication";
 import { sanitizeErrorMessage } from "./validation";
@@ -16,11 +16,12 @@ type WorkflowResult = {
 type StageCallback = (stage: JobStage) => void;
 
 export async function runWorkflow(
-  account: AutomationAccount,
+  account: Account,
   context: BrowserContext,
   targetUrl: string,
   mode: AutomationMode = "authenticate",
   onStage?: StageCallback,
+  categoryIndex: number = 0
 ): Promise<WorkflowResult> {
   let page: Page | undefined;
 
@@ -56,20 +57,11 @@ export async function runWorkflow(
       }
     }
 
-    try {
+    if (mode === "visit-only") {
       await page.goto(targetUrl, {
         waitUntil: "domcontentloaded",
         timeout: 30_000,
       });
-    } catch (error) {
-      if (error instanceof Error && error.message.includes("ERR_ABORTED")) {
-        // Ignored. Client-side redirect in progress
-      } else {
-        throw error;
-      }
-    }
-
-    if (mode === "visit-only") {
       await page.waitForTimeout(10_000);
       onStage?.("completed");
       return { success: true, message: "Target URL visited successfully." };
@@ -86,18 +78,19 @@ export async function runWorkflow(
       );
 
       if (authentication.status !== "success") {
-        onStage?.(authentication.status);
+        const failureStage: JobStage = authentication.status as JobStage;
+        onStage?.(failureStage);
         return {
           success: false,
           message: authentication.message,
-          failureStage: authentication.status,
+          failureStage,
           retryable: false,
         };
       }
     }
 
     onStage?.("post-authentication");
-    await runPostAuthentication(page, targetUrl);
+    await runPostAuthentication(page, targetUrl, categoryIndex);
     onStage?.("completed");
 
     return { success: true, message: "Browser workflow completed successfully." };

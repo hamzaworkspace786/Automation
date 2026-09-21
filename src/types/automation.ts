@@ -40,6 +40,7 @@ export type AutomationJob = {
   retryable?: boolean;
   retryCount: number;
   maxRetries: number;
+  categoryIndex?: number;
   startedAt?: string;
   completedAt?: string;
   updatedAt?: string;
