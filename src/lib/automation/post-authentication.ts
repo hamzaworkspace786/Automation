@@ -309,15 +309,6 @@ export async function runPostAuthentication(
 
   } catch (error) {
     console.error('Failed during post-authentication steps:', error);
-
-    if (!page.isClosed()) {
-      try {
-        await page.screenshot({ path: `failure-debug-${Date.now()}.png` });
-      } catch (screenshotError) {
-        console.error('Could not save screenshot:', screenshotError);
-      }
-    }
-
     throw error;
   }
 }
