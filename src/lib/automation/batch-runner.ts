@@ -1,6 +1,7 @@
 import type { BrowserContext } from "playwright";
 import type { AutomationJob, AutomationMode, JobStage } from "@/types/automation";
-import { launchAccountContext } from "@/lib/browser/browser";
+import { launchAccountContext, cleanProfileBloat } from "@/lib/browser/browser";
+import { getAccountProfileDir } from "@/lib/browser/session-state";
 import { AUTOMATION_MAX_RETRIES } from "@/lib/batching";
 import { runAutomationJob, type JobStageCallback } from "./worker";
 import { sanitizeErrorMessage } from "./validation";
@@ -113,6 +114,8 @@ export async function runBatch(
       } finally {
         if (context) {
           await context.close().catch(() => undefined);
+          const profilePath = getAccountProfileDir(currentJob.account.email);
+          cleanProfileBloat(profilePath);
         }
       }
     }

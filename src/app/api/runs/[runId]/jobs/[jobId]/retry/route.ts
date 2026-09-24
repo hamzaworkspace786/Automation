@@ -1,6 +1,6 @@
 import { getJob, updateJobResult } from "@/lib/automation/job-store";
-import { createBrowser, createBrowserContext } from "@/lib/browser/browser";
-import { assertSessionStateExists } from "@/lib/browser/session-state";
+import { launchAccountContext, cleanProfileBloat } from "@/lib/browser/browser";
+import { getAccountProfileDir } from "@/lib/browser/session-state";
 import { toPublicJob } from "@/lib/automation/jobs";
 import { getRun } from "@/lib/automation/run-store";
 import { runAutomationJob } from "@/lib/automation/worker";
@@ -92,19 +92,11 @@ export async function POST(
 
     updateJobResult(retryJob);
 
-    let browser;
     let browserContext;
 
     try {
-      browser = await createBrowser(run.mode !== "reuse-session");
-      const sessionStatePath =
-        run.mode === "reuse-session"
-          ? await assertSessionStateExists(job.account.email)
-          : undefined;
-      browserContext = await createBrowserContext(
-        browser,
-        sessionStatePath,
-      );
+      const headless = run.mode !== "reuse-session";
+      browserContext = await launchAccountContext(job.account.email, headless);
 
       const result = await runAutomationJob(
         retryJob,
@@ -169,10 +161,8 @@ export async function POST(
     } finally {
       if (!process.env.AUTOMATION_CDP_URL || run.mode === "reuse-session") {
         await browserContext?.close().catch(() => undefined);
-      }
-
-      if (!process.env.AUTOMATION_CDP_URL || run.mode === "reuse-session") {
-        await browser?.close().catch(() => undefined);
+        const profilePath = getAccountProfileDir(job.account.email);
+        cleanProfileBloat(profilePath);
       }
     }
   } catch (error) {
