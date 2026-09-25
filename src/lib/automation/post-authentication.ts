@@ -259,7 +259,8 @@ export async function runPostAuthentication(
     // 8. Smart Completion Verification
     console.log('Verifying report submission completion...');
 
-    const completionRegex = /thanks|thank you|submitted|received|report received|already reported|previously reported|already|köszönjük|pateikta|enviado|บันทึกแล้ว|ขอบคุณ|คุณได้รายงาน|ontvangen|tack|close|done|kész|got it|ok|dismiss|เสร็จสิ้น|ตกลง|ปิด/i;
+    // Removed generic words like "ok", "close", "done" which cause false positives.
+    const completionRegex = /thanks|thank you|submitted|received|report received|already reported|previously reported|köszönjük|pateikta|enviado|บันทึกแล้ว|ขอบคุณ|คุณได้รายงาน|ontvangen|tack|เสร็จสิ้น|ตกลง/i;
 
     let isCompleted = false;
 
@@ -271,24 +272,35 @@ export async function runPostAuthentication(
         break;
       }
 
-      // Condition 2: Text matching completion or already-reported messages
+      // Condition 2: Explicit Notification / Toast check (Strictly scoped, NO body text scanning)
       for (const target of getExecutionTargets()) {
-        const pageText = await target.evaluate(() => document.body.innerText).catch(() => '');
-        if (completionRegex.test(pageText)) {
-          console.log('Detected completion/already-reported confirmation text on screen.');
-          isCompleted = true;
-          break;
+        try {
+          // Only look inside elements designed for alerts/confirmations
+          const successContainer = target.locator('[role="alert"], [aria-live="polite"], .toast, snack-bar-container').filter({ hasText: completionRegex });
+
+          if (await successContainer.count() > 0 && await successContainer.first().isVisible()) {
+            console.log('Detected explicit success alert/toast on screen.');
+            isCompleted = true;
+            break;
+          }
+        } catch {
+          // Ignore locator errors on cross-origin frames
         }
       }
       if (isCompleted) break;
 
       // Condition 3: Report modal container unmounted from the DOM
+      // (If the dialog completely disappears, it means the submission went through)
       let dialogStillVisible = false;
       for (const target of getExecutionTargets()) {
-        const dialog = target.locator('[role="dialog"], [role="radiogroup"]').first();
-        if (await dialog.isVisible().catch(() => false)) {
-          dialogStillVisible = true;
-          break;
+        try {
+          const dialog = target.locator('[role="dialog"], [role="radiogroup"]').first();
+          if (await dialog.isVisible()) {
+            dialogStillVisible = true;
+            break;
+          }
+        } catch {
+          // Ignore locator errors
         }
       }
 
@@ -298,11 +310,13 @@ export async function runPostAuthentication(
         break;
       }
 
+      // Wait 1 second before checking again (up to 10 seconds total)
       await activePage.waitForTimeout(1000);
     }
 
     if (!isCompleted) {
-      console.log('Notice: Submit action completed without errors (modal dismissed).');
+      // FORCE the job to fail instead of logging a false positive
+      throw new Error('Report submission failed: Success modal did not appear and form dialog did not close.');
     }
 
     console.log(`Successfully completed report workflow for category index ${categoryIndex}`);
