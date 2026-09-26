@@ -80,7 +80,8 @@ export async function runPostAuthentication(
     for (const target of getExecutionTargets()) {
       const bodyText = await target.evaluate(() => document.body.innerText).catch(() => '');
       if (alreadyReportedRegex.test(bodyText)) {
-        console.log('Detected "Already reported" screen on initial load. Marking job as successfully completed.');
+        console.log('Detected "Already reported" screen on initial load. Waiting 4 seconds for you to view, then marking as completed.');
+        await new Promise((resolve) => setTimeout(resolve, 4000));
         return;
       }
     }
@@ -114,13 +115,13 @@ export async function runPostAuthentication(
               await activePage.waitForTimeout(300);
 
               const box = await targetElement.boundingBox();
-              if (box && box.y > 150) { // Ensure click is below header bar
+              if (box && box.y > 150) {
                 activeTarget = target;
                 const clickX = box.x + box.width / 2;
                 const clickY = box.y + box.height / 2;
 
                 await activePage.mouse.click(clickX, clickY);
-                await activePage.waitForTimeout(500);
+                await activePage.waitForTimeout(1000); // Give UI time to enable Submit button
 
                 optionSelected = true;
                 break;
@@ -133,10 +134,9 @@ export async function runPostAuthentication(
       }
     }
 
-    // Fallback: Scoped Evaluator filtering out Header elements (Y < 160) and Title strings
+    // Fallback: Scoped Evaluator filtering out Header elements
     if (!optionSelected) {
       console.log('Standard selectors missed. Scanning for option body text (excluding headers)...');
-
       const titleHeaderRegex = /report review|รายงานรีวิว|bejelentés|pranešti|denunciar|melden/i;
 
       for (const target of getExecutionTargets()) {
@@ -145,19 +145,18 @@ export async function runPostAuthentication(
           const container = document.querySelector('[role="radiogroup"], [role="dialog"], main, body');
           if (!container) return [];
 
-          const elements = Array.from(container.querySelectorAll('div, label, li, span'))
-            .filter((el) => {
-              const htmlEl = el as HTMLElement;
-              const rect = htmlEl.getBoundingClientRect();
-              const text = (htmlEl.innerText || '').trim();
+          const elements = Array.from(container.querySelectorAll('div, label, li, span')).filter((el) => {
+            const htmlEl = el as HTMLElement;
+            const rect = htmlEl.getBoundingClientRect();
+            const text = (htmlEl.innerText || '').trim();
 
-              const isBelowHeader = rect.top >= 160;
-              const isVisible = rect.width > 120 && rect.height >= 20 && rect.height <= 100;
-              const isNotTitleText = !headerPattern.test(text);
-              const isValidTextLength = text.length >= 4 && text.length <= 80;
+            const isBelowHeader = rect.top >= 160;
+            const isVisible = rect.width > 120 && rect.height >= 20 && rect.height <= 100;
+            const isNotTitleText = !headerPattern.test(text);
+            const isValidTextLength = text.length >= 4 && text.length <= 80;
 
-              return isBelowHeader && isVisible && isNotTitleText && isValidTextLength;
-            });
+            return isBelowHeader && isVisible && isNotTitleText && isValidTextLength;
+          });
 
           const distinctOptions: { x: number; y: number; text: string }[] = [];
           for (const el of elements) {
@@ -178,10 +177,10 @@ export async function runPostAuthentication(
           const targetBox = optionBoxes[categoryIndex % optionBoxes.length];
           activeTarget = target;
 
-          console.log(`Scoped Scanner found ${optionBoxes.length} options. Clicking option "${targetBox.text}" at (${Math.round(targetBox.x)}, ${Math.round(targetBox.y)})...`);
+          console.log(`Scoped Scanner found ${optionBoxes.length} options. Clicking option "${targetBox.text}"...`);
 
           await activePage.mouse.click(targetBox.x, targetBox.y);
-          await activePage.waitForTimeout(800);
+          await activePage.waitForTimeout(1000); // Give UI time to enable Submit button
           optionSelected = true;
           break;
         }
@@ -192,130 +191,145 @@ export async function runPostAuthentication(
       throw new Error('Failed to locate or click a valid report category option.');
     }
 
-    // 7. Click Submit / Next Button (Supports multi-step forms)
-    console.log('Looking for Submit / Next action button...');
-    const submitRegex = /submit|report|next|continue|done|send|küldés|elküld|pateikti|siųsti|enviar|denunciar|ส่ง|ถัดไป|verzenden|melden|skicka|rapportera|tovább|siguiente/i;
+    // 7. & 8. Unified Submit and Verify Completion Loop
+    console.log('Processing submission and verifying completion...');
+
+    const submitRegex = /submit|report|next|continue|send|küldés|elküld|pateikti|siųsti|enviar|denunciar|ส่ง|ถัดไป|verzenden|melden|skicka|rapportera|tovább|siguiente/i;
+    const fallbackRegex = /cancel|close|back|mégse|bezárás|atšaukti|uždaryti|cancelar|cerrar|ยกเลิก|ปิด|avbryt|annuleren/i;
+    const completionRegex = /thanks|thank you|submitted|received|report received|already reported|previously reported|köszönjük|pateikta|enviado|บันทึกแล้ว|ขอบคุณ|คุณได้รายงาน|ontvangen|tack|เสร็จสิ้น|ตกลง/i;
+
+    let isCompleted = false;
+    let submitAttempts = 0;
+    let lastSubmitTime = 0;
 
     const attemptSubmitClick = async (): Promise<boolean> => {
       const buttonSelectors = [
-        'button:not([disabled])',
-        '[role="button"]:not([aria-disabled="true"])',
-        'button',
-        '[role="button"]'
+        'button:not([disabled]):not([aria-disabled="true"])',
+        '[role="button"]:not([disabled]):not([aria-disabled="true"])'
       ];
 
-      for (const selector of buttonSelectors) {
-        try {
-          const buttons = activeTarget.locator(selector);
-          const count = await buttons.count();
+      for (const target of getExecutionTargets()) {
+        for (const selector of buttonSelectors) {
+          try {
+            const buttons = target.locator(selector);
+            const count = await buttons.count();
 
-          for (let i = 0; i < count; i++) {
-            const btn = buttons.nth(i);
-            const text = (await btn.innerText().catch(() => '')) || (await btn.getAttribute('aria-label').catch(() => '')) || '';
+            for (let i = 0; i < count; i++) {
+              const btn = buttons.nth(i);
+              const text = ((await btn.innerText().catch(() => '')) || (await btn.getAttribute('aria-label').catch(() => '')) || '').trim();
 
-            if (submitRegex.test(text) && await btn.isVisible().catch(() => false)) {
-              console.log(`Clicking Submit/Next button: "${text.trim()}"`);
-              const box = await btn.boundingBox();
-              if (box) {
-                await activePage.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-              } else {
-                await btn.click({ force: true });
+              if (submitRegex.test(text) && await btn.isVisible().catch(() => false)) {
+                console.log(`Clicking Submit/Next button: "${text}"`);
+                const box = await btn.boundingBox();
+                if (box) {
+                  await activePage.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+                } else {
+                  await btn.click({ force: true });
+                }
+                return true;
               }
-              return true;
             }
-          }
-        } catch {
-          // Continue loop
+          } catch { }
         }
       }
 
-      // Fallback: Click primary action button in dialog footer
-      const primaryBtn = activeTarget.locator('[role="dialog"] button, main button, form button').last();
-      if (await primaryBtn.isVisible().catch(() => false)) {
-        console.log('Clicking primary button in dialog footer...');
-        await primaryBtn.click({ force: true });
-        return true;
+      for (const target of getExecutionTargets()) {
+        try {
+          const primaryBtn = target.locator('[role="dialog"] button:not([disabled]):not([aria-disabled="true"]), form button:not([disabled])').last();
+          if (await primaryBtn.isVisible().catch(() => false)) {
+            const text = ((await primaryBtn.innerText().catch(() => '')) || '').trim();
+            if (text && !fallbackRegex.test(text)) {
+              console.log(`Clicking fallback primary button: "${text}"`);
+              await primaryBtn.click({ force: true });
+              return true;
+            }
+          }
+        } catch { }
       }
 
       return false;
     };
 
-    let submitClicked = await attemptSubmitClick();
-
-    if (!submitClicked) {
-      console.log('Submit button not explicitly found by text. Pressing Enter...');
-      await activePage.keyboard.press('Enter');
-    }
-
-    await activePage.waitForTimeout(2000);
-
-    // Check for multi-step report flows (e.g., secondary submit/confirm step)
-    const secondarySubmitClicked = await attemptSubmitClick();
-    if (secondarySubmitClicked) {
-      console.log('Clicked secondary stage submit button.');
-      await activePage.waitForTimeout(2000);
-    }
-
-    // 8. Smart Completion Verification
-    console.log('Verifying report submission completion...');
-
-    // Removed generic words like "ok", "close", "done" which cause false positives.
-    const completionRegex = /thanks|thank you|submitted|received|report received|already reported|previously reported|köszönjük|pateikta|enviado|บันทึกแล้ว|ขอบคุณ|คุณได้รายงาน|ontvangen|tack|เสร็จสิ้น|ตกลง/i;
-
-    let isCompleted = false;
-
-    for (let check = 0; check < 10; check++) {
-      // Condition 1: Pop-up window or tab closed itself after submission
+    for (let check = 0; check < 20; check++) {
       if (activePage.isClosed()) {
-        console.log('Report popup window closed automatically after submit. Treating as success.');
+        console.log('Report popup window closed automatically. Treating as success.');
         isCompleted = true;
         break;
       }
 
-      // Condition 2: Explicit Notification / Toast check (Strictly scoped, NO body text scanning)
+      let successFound = false;
       for (const target of getExecutionTargets()) {
         try {
-          // Only look inside elements designed for alerts/confirmations
-          const successContainer = target.locator('[role="alert"], [aria-live="polite"], .toast, snack-bar-container').filter({ hasText: completionRegex });
-
-          if (await successContainer.count() > 0 && await successContainer.first().isVisible()) {
-            console.log('Detected explicit success alert/toast on screen.');
-            isCompleted = true;
-            break;
+          const containers = target.locator('[role="dialog"], [role="alert"], [aria-live="polite"], .toast, snack-bar-container, main, [role="main"]');
+          const count = await containers.count();
+          for (let i = 0; i < count; i++) {
+            const text = (await containers.nth(i).innerText().catch(() => '')).toLowerCase();
+            if (completionRegex.test(text)) {
+              successFound = true;
+              break;
+            }
           }
-        } catch {
-          // Ignore locator errors on cross-origin frames
-        }
-      }
-      if (isCompleted) break;
 
-      // Condition 3: Report modal container unmounted from the DOM
-      // (If the dialog completely disappears, it means the submission went through)
+          if (!successFound && submitAttempts > 0) {
+            const pageText = (await target.evaluate(() => document.body?.innerText || '').catch(() => '')).toLowerCase();
+            if (completionRegex.test(pageText)) {
+              successFound = true;
+              break;
+            }
+          }
+        } catch { }
+        if (successFound) break;
+      }
+
+      if (successFound) {
+        console.log('Detected explicit success message ("Thanks for reporting", etc.) on screen! Waiting 4 seconds for you to view result...');
+        await new Promise((resolve) => setTimeout(resolve, 4000));
+
+        for (const target of getExecutionTargets()) {
+          try {
+            const doneBtn = target.locator('[role="dialog"] button, [role="alert"] button, button').filter({ hasText: /^(done|close|ok|bezárás|uždaryti|cerrar|ปิด)$/i }).first();
+            if (await doneBtn.isVisible().catch(() => false)) {
+              await doneBtn.click({ force: true }).catch(() => { });
+            }
+          } catch { }
+        }
+
+        isCompleted = true;
+        break;
+      }
+
       let dialogStillVisible = false;
       for (const target of getExecutionTargets()) {
         try {
-          const dialog = target.locator('[role="dialog"], [role="radiogroup"]').first();
-          if (await dialog.isVisible()) {
+          const dialog = target.locator('[role="dialog"], [role="radiogroup"], form').first();
+          if (await dialog.isVisible().catch(() => false)) {
             dialogStillVisible = true;
             break;
           }
-        } catch {
-          // Ignore locator errors
-        }
+        } catch { }
       }
 
-      if (!dialogStillVisible) {
-        console.log('Report modal container unmounted/closed. Treating report submit as successful.');
+      if (!dialogStillVisible && submitAttempts > 0 && (Date.now() - lastSubmitTime > 2500)) {
+        console.log('Report modal completely unmounted/closed after submit. Waiting 4 seconds for you to view result...');
+        await new Promise((resolve) => setTimeout(resolve, 4000));
         isCompleted = true;
         break;
       }
 
-      // Wait 1 second before checking again (up to 10 seconds total)
-      await activePage.waitForTimeout(1000);
+      if (submitAttempts < 3 && (Date.now() - lastSubmitTime > 2500)) {
+        const clicked = await attemptSubmitClick();
+        if (clicked) {
+          submitAttempts++;
+          lastSubmitTime = Date.now();
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          continue;
+        }
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     if (!isCompleted) {
-      // FORCE the job to fail instead of logging a false positive
       throw new Error('Report submission failed: Success modal did not appear and form dialog did not close.');
     }
 

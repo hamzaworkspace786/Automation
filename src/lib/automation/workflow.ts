@@ -35,7 +35,7 @@ export async function runWorkflow(
       try {
         await page.goto("https://myaccount.google.com/", {
           waitUntil: "domcontentloaded",
-          timeout: 15_000,
+          timeout: 30_000,
         });
       } catch (error) {
         if (error instanceof Error && error.message.includes("ERR_ABORTED")) {
