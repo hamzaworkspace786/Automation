@@ -19,23 +19,58 @@ export async function runPostAuthentication(
     console.log(`Navigating to target URL: ${targetUrl}`);
     await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
-    // 3. Locate and click three-dots menu
-    const threeDotsMenu = page.locator(
-      'button[aria-label*="review" i], button[aria-label*="action" i], button[aria-label*="option" i], button[aria-label*="more" i], button[aria-label*="továbbiak" i], button[aria-label*="daugiau" i], button[aria-label*="más" i], button[aria-label*="mais" i], button[aria-label*="เพิ่มเติม"], button[aria-label*="meer" i], button[aria-label*="mer" i]'
-    ).first();
+    // 3. Locate and click review's three-dots menu
+    // On Google Maps, review action buttons have aria-label like "Actions for [Author]'s review"
+    const reviewMenuSelectors = [
+      'button[aria-label*="review" i]',
+      'button[aria-label*="reseña" i]',
+      'button[aria-label*="avaliação" i]',
+      'button[aria-label*="vélemény" i]',
+      'button[aria-label*="atsiliepim" i]',
+      'button[aria-label*="รีวิว" i]',
+      'button[aria-label*="recensie" i]',
+      'button[aria-label*="recension" i]',
+      'button[aria-label*="rezension" i]',
+      'button[aria-label*="avis" i]',
+      'button.PP3Y3d',
+      '[data-review-id] button',
+      'button[aria-label*="action" i]:not([aria-label*="search" i]):not([aria-label*="menu" i])'
+    ];
 
-    await threeDotsMenu.waitFor({ state: 'visible', timeout: 30000 });
+    let threeDotsMenu: ReturnType<Page['locator']> | null = null;
+    for (const selector of reviewMenuSelectors) {
+      const loc = page.locator(selector).first();
+      if (await loc.isVisible().catch(() => false)) {
+        threeDotsMenu = loc;
+        break;
+      }
+    }
+
+    if (!threeDotsMenu) {
+      threeDotsMenu = page.locator('button[aria-label*="review" i], button.PP3Y3d, [data-review-id] button').first();
+      await threeDotsMenu.waitFor({ state: 'visible', timeout: 30000 });
+    }
+
     await threeDotsMenu.click();
+    await page.waitForTimeout(600);
 
     // 4. Click "Report review"
-    const reportMenuRegex = /report review|report|bejelentés|pranešti|denunciar|รายงาน|melden|rapportera/i;
-    const reportReviewButton = page.getByRole('menuitem', { name: reportMenuRegex })
-      .or(page.getByText(reportMenuRegex, { exact: false }))
+    // Google Maps uses role="menuitemradio" (or role="menuitem") inside the review popup menu
+    const reportItemExactRegex = /^(report review|report|bejelentés|pranešti|denunciar|รายงาน|melden|rapportera|rezension melden|signaler l'avis)$/i;
+    const reportItemContainsRegex = /report review|vélemény bejelentése|denunciar reseña|denunciar avaliação|pranešti apie atsiliepimą|รายงานรีวิว|recensie melden|recension rapportera|rezension melden|signaler/i;
+
+    const newPagePromise = page.context().waitForEvent('page', { timeout: 12000 }).catch(() => null);
+
+    const reportReviewButton = page
+      .locator('[role="menuitemradio"], [role="menuitem"], [role="menu"] div, .goog-menuitem')
+      .filter({ hasText: reportItemExactRegex })
+      .or(
+        page.locator('[role="menuitemradio"], [role="menuitem"], [role="menu"] div, .goog-menuitem')
+          .filter({ hasText: reportItemContainsRegex })
+      )
       .first();
 
     await reportReviewButton.waitFor({ state: 'visible', timeout: 10000 });
-
-    const newPagePromise = page.context().waitForEvent('page', { timeout: 8000 }).catch(() => null);
     await reportReviewButton.click({ force: true });
 
     const newTab = await newPagePromise;
@@ -44,7 +79,7 @@ export async function runPostAuthentication(
     if (newTab) {
       console.log('Detected new tab for reporting flow.');
       await activePage.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => { });
-      await activePage.waitForTimeout(3000);
+      await activePage.waitForTimeout(2000);
     }
 
     // 5. Check if Google requests authentication inside reporting popup
@@ -68,22 +103,24 @@ export async function runPostAuthentication(
       return [activePage, ...activePage.frames()];
     };
 
-    // 6. Wait for Report Options Container
-    console.log('Waiting for report options container to render...');
-    await activePage.waitForTimeout(2000);
+    // 6. Check for "Already reported" screen with client-side render polling
+    console.log('Checking for report options or existing report status...');
+    const alreadyReportedRegex = /already reported|you've already reported|you have already reported|you reported this|previously reported|already submitted|previously submitted|คุณได้รายงาน|já denunciado|már bejelentve|jau pranešta|bereits gemeldet|déjà signalé/i;
 
-    let activeTarget: Page | Frame = activePage;
     let optionSelected = false;
+    let activeTarget: Page | Frame = activePage;
 
-    // Fast Path: Check if "Already reported" screen is displayed immediately on load
-    const alreadyReportedRegex = /already reported|previously reported|already submitted|คุณได้รายงาน|já denunciado|már bejelentve|jau pranešta/i;
-    for (const target of getExecutionTargets()) {
-      const bodyText = await target.evaluate(() => document.body.innerText).catch(() => '');
-      if (alreadyReportedRegex.test(bodyText)) {
-        console.log('Detected "Already reported" screen on initial load. Waiting 4 seconds for you to view, then marking as completed.');
-        await new Promise((resolve) => setTimeout(resolve, 4000));
-        return;
+    // Poll to allow async client-side rendering of "Already reported" status
+    for (let poll = 0; poll < 6; poll++) {
+      for (const target of getExecutionTargets()) {
+        const bodyText = await target.evaluate(() => document.body?.innerText || '').catch(() => '');
+        if (alreadyReportedRegex.test(bodyText)) {
+          console.log('Detected "Already reported" screen on load. Waiting 4 seconds for you to view, then marking as completed.');
+          await new Promise((resolve) => setTimeout(resolve, 4000));
+          return;
+        }
       }
+      await activePage.waitForTimeout(500);
     }
 
     // Direct Radio / Option Selectors
@@ -115,7 +152,7 @@ export async function runPostAuthentication(
               await activePage.waitForTimeout(300);
 
               const box = await targetElement.boundingBox();
-              if (box && box.y > 150) {
+              if (box && box.y > 100) {
                 activeTarget = target;
                 const clickX = box.x + box.width / 2;
                 const clickY = box.y + box.height / 2;
@@ -134,15 +171,17 @@ export async function runPostAuthentication(
       }
     }
 
-    // Fallback: Scoped Evaluator filtering out Header elements
+    // Fallback: Scoped Evaluator filtering out Header elements and non-option text
     if (!optionSelected) {
       console.log('Standard selectors missed. Scanning for option body text (excluding headers)...');
       const titleHeaderRegex = /report review|รายงานรีวิว|bejelentés|pranešti|denunciar|melden/i;
+      const blacklistTextRegex = /privacy|terms|policy|google|cookie|feedback|about|help|review|stars|opinions about maps/i;
 
       for (const target of getExecutionTargets()) {
-        const optionBoxes = await target.evaluate((headerPatternStr) => {
-          const headerPattern = new RegExp(headerPatternStr, 'i');
-          const container = document.querySelector('[role="radiogroup"], [role="dialog"], main, body');
+        const optionBoxes = await target.evaluate((args) => {
+          const headerPattern = new RegExp(args.headerPatternStr, 'i');
+          const blacklistPattern = new RegExp(args.blacklistPatternStr, 'i');
+          const container = document.querySelector('[role="radiogroup"], [role="dialog"], form, [role="list"], .quantumWizRadiogroup') || (args.isNewTab ? document.querySelector('main, body') : null);
           if (!container) return [];
 
           const elements = Array.from(container.querySelectorAll('div, label, li, span')).filter((el) => {
@@ -150,12 +189,13 @@ export async function runPostAuthentication(
             const rect = htmlEl.getBoundingClientRect();
             const text = (htmlEl.innerText || '').trim();
 
-            const isBelowHeader = rect.top >= 160;
+            const isBelowHeader = rect.top >= 120;
             const isVisible = rect.width > 120 && rect.height >= 20 && rect.height <= 100;
             const isNotTitleText = !headerPattern.test(text);
+            const isNotBlacklist = !blacklistPattern.test(text);
             const isValidTextLength = text.length >= 4 && text.length <= 80;
 
-            return isBelowHeader && isVisible && isNotTitleText && isValidTextLength;
+            return isBelowHeader && isVisible && isNotTitleText && isNotBlacklist && isValidTextLength;
           });
 
           const distinctOptions: { x: number; y: number; text: string }[] = [];
@@ -171,7 +211,7 @@ export async function runPostAuthentication(
             }
           }
           return distinctOptions;
-        }, titleHeaderRegex.source).catch(() => []);
+        }, { headerPatternStr: titleHeaderRegex.source, blacklistPatternStr: blacklistTextRegex.source, isNewTab: Boolean(newTab) }).catch(() => []);
 
         if (optionBoxes.length >= 3) {
           const targetBox = optionBoxes[categoryIndex % optionBoxes.length];
@@ -188,6 +228,16 @@ export async function runPostAuthentication(
     }
 
     if (!optionSelected) {
+      // Final re-check: did the page say "Already reported" while we were searching?
+      for (const target of getExecutionTargets()) {
+        const bodyText = await target.evaluate(() => document.body?.innerText || '').catch(() => '');
+        if (alreadyReportedRegex.test(bodyText)) {
+          console.log('Detected "Already reported" confirmation on screen during fallback scan. Marking as completed.');
+          await new Promise((resolve) => setTimeout(resolve, 4000));
+          return;
+        }
+      }
+
       throw new Error('Failed to locate or click a valid report category option.');
     }
 
