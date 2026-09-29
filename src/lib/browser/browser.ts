@@ -3,16 +3,34 @@ import { getAccountProfileDir } from "./session-state";
 import fs from "fs";
 import path from "path";
 
+export interface LaunchContextOptions {
+  headless?: boolean;
+  proxy?: {
+    server: string;
+    username?: string;
+    password?: string;
+  };
+  timezoneId?: string;
+  locale?: string;
+}
+
 export async function launchAccountContext(
   email: string,
-  headless = false
+  options: LaunchContextOptions | boolean = false
 ): Promise<BrowserContext> {
   const profileDir = getAccountProfileDir(email);
 
+  // Maintain backward compatibility if a boolean 'headless' is passed directly
+  const opts: LaunchContextOptions =
+    typeof options === "boolean" ? { headless: options } : options;
+
   return chromium.launchPersistentContext(profileDir, {
-    headless,
+    headless: opts.headless ?? false,
     channel: "chrome",
     viewport: { width: 1280, height: 720 },
+    proxy: opts.proxy,
+    timezoneId: opts.timezoneId,
+    locale: opts.locale,
     args: [
       "--disable-blink-features=AutomationControlled",
       "--no-first-run",
@@ -52,4 +70,4 @@ export function cleanProfileBloat(profilePath: string) {
       // Ignore file-lock errors silently
     }
   }
-}
+}

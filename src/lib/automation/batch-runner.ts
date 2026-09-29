@@ -5,6 +5,11 @@ import { getAccountProfileDir } from "@/lib/browser/session-state";
 import { AUTOMATION_MAX_RETRIES } from "@/lib/batching";
 import { runAutomationJob, type JobStageCallback } from "./worker";
 import { sanitizeErrorMessage } from "./validation";
+import { getProxyConfigForAccount, type AccountProxyConfig } from "@/lib/proxy/proxy-config";
+
+type JobWithProxy = AutomationJob & {
+  proxyConfig?: AccountProxyConfig;
+};
 
 export async function runBatch(
   jobs: AutomationJob[],
@@ -15,20 +20,28 @@ export async function runBatch(
 ): Promise<AutomationJob[]> {
   console.log(`Starting batch with ${jobs.length} jobs (Concurrency: ${concurrencyLimit})`);
 
-  // Assign distinct option indices to jobs so concurrent accounts pick different options
-  const preparedJobs: AutomationJob[] = jobs.map((job, index) => ({
-    ...job,
-    categoryIndex: job.categoryIndex ?? (index % 8),
-    retryCount: job.retryCount ?? 0,
-    maxRetries: job.maxRetries ?? AUTOMATION_MAX_RETRIES,
-  }));
+  // Assign distinct option indices AND proxy configurations (1 country per concurrent job)
+  const preparedJobs: JobWithProxy[] = jobs.map((job, index) => {
+    const proxyConfig = getProxyConfigForAccount(job.account.email, index);
+    console.log(
+      `[Proxy Setup] Account ${job.account.email} assigned to Country: ${proxyConfig.countryCode.toUpperCase()}`
+    );
+
+    return {
+      ...job,
+      categoryIndex: job.categoryIndex ?? (index % 8),
+      retryCount: job.retryCount ?? 0,
+      maxRetries: job.maxRetries ?? AUTOMATION_MAX_RETRIES,
+      proxyConfig,
+    };
+  });
 
   const results: AutomationJob[] = new Array(preparedJobs.length);
 
-  async function processSingleJob(job: AutomationJob): Promise<AutomationJob> {
+  async function processSingleJob(job: JobWithProxy): Promise<AutomationJob> {
     let attempt = 0;
     const maxAttempts = job.maxRetries + 1;
-    let currentJob: AutomationJob = {
+    let currentJob: JobWithProxy = {
       ...job,
       startedAt: job.startedAt ?? new Date().toISOString()
     };
@@ -37,7 +50,13 @@ export async function runBatch(
       let context: BrowserContext | undefined;
 
       try {
-        context = await launchAccountContext(currentJob.account.email);
+        // Launch context with assigned country proxy, timezone, and locale
+        context = await launchAccountContext(currentJob.account.email, {
+          headless: false,
+          proxy: currentJob.proxyConfig?.proxy,
+          timezoneId: currentJob.proxyConfig?.timezoneId,
+          locale: currentJob.proxyConfig?.locale,
+        });
 
         const result = await runAutomationJob(
           currentJob,
@@ -69,7 +88,7 @@ export async function runBatch(
           };
         }
 
-        const nextRetryJob: AutomationJob = {
+        const nextRetryJob: JobWithProxy = {
           ...result,
           status: "pending",
           stage: "retrying",
@@ -77,6 +96,7 @@ export async function runBatch(
           maxRetries: currentJob.maxRetries,
           error: result.error,
           updatedAt: new Date().toISOString(),
+          proxyConfig: currentJob.proxyConfig,
         };
 
         onStage?.(nextRetryJob, "retrying");
@@ -85,7 +105,7 @@ export async function runBatch(
 
       } catch (error) {
         const failureMessage = sanitizeErrorMessage(error);
-        const failedJob: AutomationJob = {
+        const failedJob: JobWithProxy = {
           ...currentJob,
           status: "failed",
           stage: "failed",
@@ -99,7 +119,7 @@ export async function runBatch(
           return failedJob;
         }
 
-        const retryJob: AutomationJob = {
+        const retryJob: JobWithProxy = {
           ...failedJob,
           status: "pending",
           stage: "retrying",

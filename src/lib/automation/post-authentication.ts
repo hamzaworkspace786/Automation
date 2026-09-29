@@ -15,7 +15,10 @@ export async function runPostAuthentication(
       });
     }
 
-    // 2. Navigate to target URL
+    // 2. Block heavy assets on main page to reduce bandwidth and speed up load
+    await page.route('**/*.{png,jpg,jpeg,gif,webp,svg,woff,woff2,ttf,mp4,mp3}', route => route.abort());
+
+    // Navigate to target URL
     console.log(`Navigating to target URL: ${targetUrl}`);
     await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
@@ -78,6 +81,8 @@ export async function runPostAuthentication(
 
     if (newTab) {
       console.log('Detected new tab for reporting flow.');
+      // Block heavy assets on the new tab as well
+      await newTab.route('**/*.{png,jpg,jpeg,gif,webp,svg,woff,woff2,ttf,mp4,mp3}', route => route.abort());
       await activePage.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => { });
       await activePage.waitForTimeout(2000);
     }
