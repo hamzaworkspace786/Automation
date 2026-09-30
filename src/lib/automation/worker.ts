@@ -11,6 +11,19 @@ export async function runAutomationJob(
   mode: AutomationMode,
   onStage?: JobStageCallback
 ): Promise<AutomationJob> {
+  // Verify and log actual proxy IP address
+  try {
+    const response = await context.request.get("https://ipinfo.io/json", { timeout: 5000 });
+    if (response.ok()) {
+      const ipData = (await response.json()) as { ip?: string; city?: string; country?: string };
+      console.log(
+        `[IP Verified] Account ${job.account.email} -> IP: ${ipData.ip ?? "Unknown"} | Location: ${ipData.city ?? "Unknown"}, ${ipData.country ?? "Unknown"}`
+      );
+    }
+  } catch {
+    // Fallback silently if the IP lookup service times out
+  }
+
   const result = await runWorkflow(
     job.account,
     context,
