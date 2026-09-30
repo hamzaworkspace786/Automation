@@ -16,20 +16,23 @@ export async function runBatch(
   targetUrl: string,
   mode: AutomationMode = "reuse-session",
   onStage?: JobStageCallback,
-  concurrencyLimit: number = 5
+  concurrencyLimit: number = 5,
+  globalOffset: number = 0 // <--- ADDED: Tracks absolute position across batches
 ): Promise<AutomationJob[]> {
-  console.log(`Starting batch with ${jobs.length} jobs (Concurrency: ${concurrencyLimit})`);
+  console.log(`Starting batch with ${jobs.length} jobs (Concurrency: ${concurrencyLimit}, Offset: ${globalOffset})`);
 
-  // Assign distinct option indices AND proxy configurations (1 country per concurrent job)
+  // Assign distinct option indices AND proxy configurations continuously across batches
   const preparedJobs: JobWithProxy[] = jobs.map((job, index) => {
-    const proxyConfig = getProxyConfigForAccount(job.account.email, index);
+    const globalIndex = globalOffset + index; // <--- Calculates absolute account index (0, 1, 2 ... 153)
+    const proxyConfig = getProxyConfigForAccount(job.account.email, globalIndex);
+
     console.log(
-      `[Proxy Setup] Account ${job.account.email} assigned to Country: ${proxyConfig.countryCode.toUpperCase()}`
+      `[Proxy Setup] Account ${job.account.email} assigned to Country: ${proxyConfig.countryCode.toUpperCase()} (Global Index: ${globalIndex})`
     );
 
     return {
       ...job,
-      categoryIndex: job.categoryIndex ?? (index % 8),
+      categoryIndex: job.categoryIndex ?? (globalIndex % 8),
       retryCount: job.retryCount ?? 0,
       maxRetries: job.maxRetries ?? AUTOMATION_MAX_RETRIES,
       proxyConfig,
@@ -50,7 +53,6 @@ export async function runBatch(
       let context: BrowserContext | undefined;
 
       try {
-        // Launch context with assigned country proxy, timezone, and locale
         context = await launchAccountContext(currentJob.account.email, {
           headless: false,
           proxy: currentJob.proxyConfig?.proxy,
@@ -143,7 +145,6 @@ export async function runBatch(
     return currentJob;
   }
 
-  // Execute jobs concurrently in chunks matching the concurrency limit
   for (let i = 0; i < preparedJobs.length; i += concurrencyLimit) {
     const chunk = preparedJobs.slice(i, i + concurrencyLimit);
     const chunkPromises = chunk.map((job) => processSingleJob(job));

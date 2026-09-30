@@ -5,11 +5,33 @@ export interface CountryProfile {
 }
 
 export const PROXY_COUNTRIES: CountryProfile[] = [
+    // North America
     { code: 'us', tz: 'America/New_York', locale: 'en-US' },
+    { code: 'ca', tz: 'America/Toronto', locale: 'en-CA' },
+    { code: 'mx', tz: 'America/Mexico_City', locale: 'es-MX' },
+
+    // Europe
     { code: 'gb', tz: 'Europe/London', locale: 'en-GB' },
     { code: 'de', tz: 'Europe/Berlin', locale: 'de-DE' },
-    { code: 'ca', tz: 'America/Toronto', locale: 'en-CA' },
     { code: 'fr', tz: 'Europe/Paris', locale: 'fr-FR' },
+    { code: 'it', tz: 'Europe/Rome', locale: 'it-IT' },
+    { code: 'es', tz: 'Europe/Madrid', locale: 'es-ES' },
+    { code: 'nl', tz: 'Europe/Amsterdam', locale: 'nl-NL' },
+    { code: 'se', tz: 'Europe/Stockholm', locale: 'sv-SE' },
+    { code: 'ch', tz: 'Europe/Zurich', locale: 'de-CH' },
+    { code: 'ie', tz: 'Europe/Dublin', locale: 'en-IE' },
+    { code: 'at', tz: 'Europe/Vienna', locale: 'de-AT' },
+
+    // Oceania
+    { code: 'au', tz: 'Australia/Sydney', locale: 'en-AU' },
+    { code: 'nz', tz: 'Pacific/Auckland', locale: 'en-NZ' },
+
+    // Asia & Others (Major Hubs)
+    { code: 'jp', tz: 'Asia/Tokyo', locale: 'ja-JP' },
+    { code: 'sg', tz: 'Asia/Singapore', locale: 'en-SG' },
+    { code: 'in', tz: 'Asia/Kolkata', locale: 'en-IN' },
+    { code: 'br', tz: 'America/Sao_Paulo', locale: 'pt-BR' },
+    { code: 'za', tz: 'Africa/Johannesburg', locale: 'en-ZA' }
 ];
 
 export interface AccountProxyConfig {

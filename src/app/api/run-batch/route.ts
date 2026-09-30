@@ -176,6 +176,7 @@ export async function POST(
 
             for (const [index, batch] of batches.entries()) {
               const batchNumber = index + 1;
+              const globalOffset = index * AUTOMATION_BATCH_SIZE;
 
               sendEvent("batch_started", {
                 runId: run.id,
@@ -211,7 +212,9 @@ export async function POST(
                       ? toPublicJob(updatedJob)
                       : undefined,
                   });
-                }
+                },
+                AUTOMATION_BATCH_SIZE,
+                globalOffset
               );
 
               for (const result of results) {

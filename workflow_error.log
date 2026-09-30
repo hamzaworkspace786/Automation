@@ -1297,3 +1297,39 @@ waiting for navigation until "domcontentloaded"
     at async processSingleJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1mh4rbr._.js:381:32)
     at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1mh4rbr._.js:447:30)
     at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__1mh4rbr._.js:187:45)
+[2026-09-30T07:45:46.549Z] nomi1122th@gmail.com: Report submission failed: Success modal did not appear and form dialog did not close.
+Error: Report submission failed: Success modal did not appear and form dialog did not close.
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:923:19)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:1221:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:1127:20)
+    at async processSingleJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:396:32)
+    at async Promise.all (index 1)
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:462:30)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:188:45)
+[2026-09-30T07:46:46.815Z] plopz1122th@gmail.com: Report submission failed: Success modal did not appear and form dialog did not close.
+Error: Report submission failed: Success modal did not appear and form dialog did not close.
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:923:19)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:1221:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:1127:20)
+    at async processSingleJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:396:32)
+    at async Promise.all (index 4)
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:462:30)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:188:45)
+[2026-09-30T07:51:20.092Z] nomi1122th@gmail.com: Report submission failed: Success modal did not appear and form dialog did not close.
+Error: Report submission failed: Success modal did not appear and form dialog did not close.
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:923:19)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:1221:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:1127:20)
+    at async processSingleJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:396:32)
+    at async Promise.all (index 1)
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:462:30)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:188:45)
+[2026-09-30T07:52:42.123Z] plopz1122th@gmail.com: Report submission failed: Success modal did not appear and form dialog did not close.
+Error: Report submission failed: Success modal did not appear and form dialog did not close.
+    at runPostAuthentication (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:923:19)
+    at async runWorkflow (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:1221:9)
+    at async runAutomationJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:1127:20)
+    at async processSingleJob (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:396:32)
+    at async Promise.all (index 4)
+    at async runBatch (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:462:30)
+    at async runAutomation (C:\Lapi\Study\Web\automation-dashboard\.next\dev\server\chunks\[root-of-the-server]__0avl3ta._.js:188:45)
