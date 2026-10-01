@@ -4,6 +4,7 @@ import { getAccountProfileDir } from "@/lib/browser/session-state";
 import { toPublicJob } from "@/lib/automation/jobs";
 import { getRun } from "@/lib/automation/run-store";
 import { runAutomationJob } from "@/lib/automation/worker";
+import { getProxyConfigForAccount } from "@/lib/proxy/proxy-config";
 import type { AutomationJob } from "@/types/automation";
 
 type RouteContext = {
@@ -96,7 +97,14 @@ export async function POST(
 
     try {
       const headless = run.mode !== "reuse-session";
-      browserContext = await launchAccountContext(job.account.email, headless);
+      const proxyConfig = getProxyConfigForAccount(job.account.email, job.categoryIndex ?? 0);
+
+      browserContext = await launchAccountContext(job.account.email, {
+        headless,
+        proxy: proxyConfig?.proxy,
+        timezoneId: proxyConfig?.timezoneId,
+        locale: proxyConfig?.locale,
+      });
 
       const result = await runAutomationJob(
         retryJob,

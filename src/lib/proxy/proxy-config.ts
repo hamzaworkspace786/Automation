@@ -51,9 +51,10 @@ export function getProxyConfigForAccount(
 ): AccountProxyConfig {
     const country = PROXY_COUNTRIES[index % PROXY_COUNTRIES.length];
 
-    const host = process.env.PROXY_HOST || 'gw.dataimpulse.com:823';
-    const baseUser = process.env.PROXY_USERNAME;
-    const password = process.env.PROXY_PASSWORD;
+    const host = process.env.PROXY_HOST || 'gw.dataimpulse.com';
+    const port = process.env.PROXY_PORT || '823';
+    const baseUser = process.env.PROXY_USER || process.env.PROXY_USERNAME;
+    const password = process.env.PROXY_PASS || process.env.PROXY_PASSWORD;
 
     // If credentials are not set, return matching timezone/locale without proxy settings
     if (!baseUser || baseUser === 'dummy_user') {
@@ -71,8 +72,9 @@ export function getProxyConfigForAccount(
     // DataImpulse targeting syntax: USERNAME__cr.COUNTRY;sid.SESSION_ID
     const formattedUsername = `${baseUser}__cr.${country.code};sid.${sessionId}`;
 
-    // Ensure server protocol is included
-    const server = host.startsWith('http') ? host : `http://${host}`;
+    // Ensure server protocol and port are included
+    const hostWithPort = host.includes(':') ? host : `${host}:${port}`;
+    const server = hostWithPort.startsWith('http') ? hostWithPort : `http://${hostWithPort}`;
 
     return {
         proxy: {
