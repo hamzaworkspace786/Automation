@@ -1,7 +1,5 @@
-import type { BrowserContext } from "playwright";
 import type { AutomationJob, AutomationMode, JobStage } from "@/types/automation";
-import { launchAccountContext, cleanProfileBloat } from "@/lib/browser/browser";
-import { getAccountProfileDir } from "@/lib/browser/session-state";
+import { launchAccountContext, type AccountSession } from "@/lib/browser/browser";
 import { AUTOMATION_MAX_RETRIES } from "@/lib/batching";
 import { runAutomationJob, type JobStageCallback } from "./worker";
 import { sanitizeErrorMessage } from "./validation";
@@ -17,17 +15,17 @@ export async function runBatch(
   mode: AutomationMode = "reuse-session",
   onStage?: JobStageCallback,
   concurrencyLimit: number = 5,
-  globalOffset: number = 0 // <--- ADDED: Tracks absolute position across batches
+  globalOffset: number = 0 // Tracks absolute position across batches (only used to pick a country for NEW accounts)
 ): Promise<AutomationJob[]> {
   console.log(`Starting batch with ${jobs.length} jobs (Concurrency: ${concurrencyLimit}, Offset: ${globalOffset})`);
 
-  // Assign distinct option indices AND proxy configurations continuously across batches
+  // Resolve each account's persisted proxy binding (created on first sight, reused forever after)
   const preparedJobs: JobWithProxy[] = jobs.map((job, index) => {
-    const globalIndex = globalOffset + index; // <--- Calculates absolute account index (0, 1, 2 ... 153)
+    const globalIndex = globalOffset + index;
     const proxyConfig = getProxyConfigForAccount(job.account.email, globalIndex);
 
     console.log(
-      `[Proxy Setup] Account ${job.account.email} assigned to Country: ${proxyConfig.countryCode.toUpperCase()} (Global Index: ${globalIndex})`
+      `[Proxy Setup] Account ${job.account.email} -> Country: ${proxyConfig.countryCode.toUpperCase()} | sessid: ${proxyConfig.sessionId}`
     );
 
     return {
@@ -50,24 +48,46 @@ export async function runBatch(
     };
 
     while (attempt < maxAttempts) {
-      let context: BrowserContext | undefined;
+      let session: AccountSession | undefined;
 
       try {
-        context = await launchAccountContext(currentJob.account.email, {
+        session = await launchAccountContext(currentJob.account.email, {
           headless: false,
           proxy: currentJob.proxyConfig?.proxy,
           timezoneId: currentJob.proxyConfig?.timezoneId,
           locale: currentJob.proxyConfig?.locale,
         });
 
+        console.log(
+          `[Session] ${currentJob.account.email}: ${session.restoredFromFile ? "restored saved session" : "no saved session (fresh)"}`
+        );
+
+        const activeSession = session;
+
         const result = await runAutomationJob(
           currentJob,
-          context,
+          activeSession.context,
           targetUrl,
           mode,
           (updatedJob, stage: JobStage) => {
             console.log(`Job ${updatedJob.id} stage: ${stage}`);
             onStage?.(updatedJob, stage);
+          },
+          {
+            proxied: Boolean(currentJob.proxyConfig?.proxy),
+            expectedCountry: currentJob.proxyConfig?.countryCode,
+            onSessionValidated: async () => {
+              try {
+                const saved = await activeSession.save(targetUrl);
+                console.log(
+                  `[Session] ${currentJob.account.email}: saved ${saved.cookies} cookies, ${(saved.bytes / 1024).toFixed(1)} KB`
+                );
+              } catch (error) {
+                console.warn(
+                  `[Session] ${currentJob.account.email}: save failed: ${sanitizeErrorMessage(error)}`
+                );
+              }
+            },
           }
         );
 
@@ -134,10 +154,8 @@ export async function runBatch(
         attempt += 1;
 
       } finally {
-        if (context) {
-          await context.close().catch(() => undefined);
-          const profilePath = getAccountProfileDir(currentJob.account.email);
-          cleanProfileBloat(profilePath);
+        if (session) {
+          await session.close();
         }
       }
     }

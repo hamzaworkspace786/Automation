@@ -1,3 +1,10 @@
+import { normalizeEmail } from '@/lib/browser/session-state';
+import {
+    buildSessionId,
+    readBinding,
+    writeBinding,
+} from './proxy-binding';
+
 export interface CountryProfile {
     code: string;
     tz: string;
@@ -43,34 +50,65 @@ export interface AccountProxyConfig {
     timezoneId: string;
     locale: string;
     countryCode: string;
+    sessionId: string;
 }
 
+/**
+ * Returns the proxy identity for an account.
+ *
+ * The first call for an email creates a binding (country, tz, locale, sessid)
+ * and persists it. Every later call returns the SAME values, regardless of the
+ * account's position in the submitted list, so the account keeps asking the
+ * proxy for the same IP slot and presents the same geo fingerprint.
+ *
+ * `index` is only used to pick a country the first time an account is seen.
+ */
 export function getProxyConfigForAccount(
     accountEmail: string,
     index: number
 ): AccountProxyConfig {
-    const country = PROXY_COUNTRIES[index % PROXY_COUNTRIES.length];
+    let binding = readBinding(accountEmail);
+
+    if (!binding) {
+        const country = PROXY_COUNTRIES[index % PROXY_COUNTRIES.length];
+        binding = {
+            email: normalizeEmail(accountEmail),
+            countryCode: country.code,
+            timezoneId: country.tz,
+            locale: country.locale,
+            generation: 0,
+            sessionId: buildSessionId(accountEmail, 0),
+            createdAt: new Date().toISOString(),
+            ipChangeCount: 0,
+        };
+        writeBinding(binding);
+    }
 
     const host = process.env.PROXY_HOST || 'gw.dataimpulse.com';
     const port = process.env.PROXY_PORT || '823';
     const baseUser = process.env.PROXY_USER || process.env.PROXY_USERNAME;
     const password = process.env.PROXY_PASS || process.env.PROXY_PASSWORD;
 
+    const common = {
+        timezoneId: binding.timezoneId,
+        locale: binding.locale,
+        countryCode: binding.countryCode,
+        sessionId: binding.sessionId,
+    };
+
     // If credentials are not set, return matching timezone/locale without proxy settings
     if (!baseUser || baseUser === 'dummy_user') {
-        return {
-            timezoneId: country.tz,
-            locale: country.locale,
-            countryCode: country.code,
-        };
+        return common;
     }
 
-    // Generate a clean sticky session ID per account
-    const cleanEmail = accountEmail.replace(/[^a-zA-Z0-9]/g, '');
-    const sessionId = `${cleanEmail}_${Date.now()}`;
+    // DataImpulse syntax: LOGIN__cr.<country>;sessid.<id>[;sessttl.<minutes>]
+    // (the parameter is `sessid`, not `sid`).
+    let formattedUsername = `${baseUser}__cr.${binding.countryCode};sessid.${binding.sessionId}`;
 
-    // DataImpulse targeting syntax: USERNAME__cr.COUNTRY;sid.SESSION_ID
-    const formattedUsername = `${baseUser}__cr.${country.code};sid.${sessionId}`;
+    const ttl = Number.parseInt(process.env.PROXY_SESSION_TTL_MIN ?? '', 10);
+    if (Number.isFinite(ttl) && ttl > 0) {
+        formattedUsername += `;sessttl.${ttl}`;
+    }
 
     // Ensure server protocol and port are included
     const hostWithPort = host.includes(':') ? host : `${host}:${port}`;
@@ -82,8 +120,6 @@ export function getProxyConfigForAccount(
             username: formattedUsername,
             password,
         },
-        timezoneId: country.tz,
-        locale: country.locale,
-        countryCode: country.code,
+        ...common,
     };
 }

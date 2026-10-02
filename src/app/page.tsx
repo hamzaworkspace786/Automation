@@ -56,9 +56,7 @@ type JobDetail = {
 };
 
 export default function Home() {
-  const [targetUrl, setTargetUrl] = useState(
-    "https://share.google/nGDUcwrYZ6wG3lRvP",
-  );
+  const [targetUrl, setTargetUrl] = useState("");
   const [executionMode, setExecutionMode] = useState<
     "visit-only" | "authenticate" | "reuse-session"
   >("reuse-session");

@@ -15,13 +15,40 @@ type WorkflowResult = {
 
 type StageCallback = (stage: JobStage) => void;
 
+export type WorkflowHooks = {
+  /**
+   * Called once the account is confirmed signed in to Google.
+   * This is where the session file gets saved.
+   */
+  onSessionValidated?: () => Promise<void>;
+};
+
+async function gotoTolerant(page: Page, url: string, timeout: number) {
+  try {
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("ERR_ABORTED")) {
+      await page.waitForLoadState("domcontentloaded").catch(() => undefined);
+    } else {
+      throw error;
+    }
+  }
+}
+
+/** True if Google lets us open the account page without bouncing to sign-in. */
+async function hasValidGoogleSession(page: Page): Promise<boolean> {
+  await gotoTolerant(page, "https://myaccount.google.com/", 30_000);
+  return !isGoogleSignInUrl(page.url());
+}
+
 export async function runWorkflow(
   account: Account,
   context: BrowserContext,
   targetUrl: string,
   mode: AutomationMode = "authenticate",
   onStage?: StageCallback,
-  categoryIndex: number = 0
+  categoryIndex: number = 0,
+  hooks: WorkflowHooks = {}
 ): Promise<WorkflowResult> {
   let page: Page | undefined;
 
@@ -32,20 +59,7 @@ export async function runWorkflow(
     page = pages.length > 0 ? pages[0] : await context.newPage();
 
     if (mode === "reuse-session") {
-      try {
-        await page.goto("https://myaccount.google.com/", {
-          waitUntil: "domcontentloaded",
-          timeout: 30_000,
-        });
-      } catch (error) {
-        if (error instanceof Error && error.message.includes("ERR_ABORTED")) {
-          await page.waitForLoadState("domcontentloaded").catch(() => undefined);
-        } else {
-          throw error;
-        }
-      }
-
-      if (page && isGoogleSignInUrl(page.url())) {
+      if (!(await hasValidGoogleSession(page))) {
         onStage?.("auth-expired");
 
         return {
@@ -55,6 +69,9 @@ export async function runWorkflow(
           retryable: false,
         };
       }
+
+      // Cookies may have been refreshed by Google; keep the file current.
+      await hooks.onSessionValidated?.();
     }
 
     if (mode === "visit-only") {
@@ -70,23 +87,44 @@ export async function runWorkflow(
     if (mode === "authenticate") {
       onStage?.("authenticating");
 
-      const authentication = await runAuthentication(
-        page,
-        account.email,
-        account.password ?? "",
-        () => onStage?.("manual-verification-required"),
-      );
+      // If a saved session is still valid, skip the manual login entirely.
+      const alreadySignedIn = await hasValidGoogleSession(page).catch(() => false);
 
-      if (authentication.status !== "success") {
-        const failureStage: JobStage = authentication.status as JobStage;
-        onStage?.(failureStage);
-        return {
-          success: false,
-          message: authentication.message,
-          failureStage,
-          retryable: false,
-        };
+      if (alreadySignedIn) {
+        console.log(`Saved session for ${account.email} is still valid, skipping manual login.`);
+      } else {
+        const authentication = await runAuthentication(
+          page,
+          account.email,
+          account.password ?? "",
+          () => onStage?.("manual-verification-required"),
+        );
+
+        if (authentication.status !== "success") {
+          const failureStage: JobStage = authentication.status as JobStage;
+          onStage?.(failureStage);
+          return {
+            success: false,
+            message: authentication.message,
+            failureStage,
+            retryable: false,
+          };
+        }
+
+        // Don't trust "left the sign-in page" alone: confirm before saving anything.
+        const confirmed = await hasValidGoogleSession(page).catch(() => false);
+        if (!confirmed) {
+          onStage?.("failed");
+          return {
+            success: false,
+            message: "Login finished but the Google session could not be confirmed.",
+            failureStage: "failed",
+            retryable: false,
+          };
+        }
       }
+
+      await hooks.onSessionValidated?.();
     }
 
     onStage?.("post-authentication");
